@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Разговорные выражения · набор 1</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862;
+    --line:#e3e0da; --accent:#3d5a80; --accent-soft:#eaf0f6;
+    --ok:#2d6a4f; --tag:#7a4b8f; --tag-bg:#f3ecf7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  header{margin-bottom:26px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 4px}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 18px}
+
+  .tbl-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .tool{font:inherit;font-size:13.5px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--muted)}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+  .tool.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:680px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1.5px solid var(--line)}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px;width:26px;padding-right:0}
+  td.w{font-weight:600;width:22%}
+  td.w .note{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+  td.ru{color:var(--muted);width:27%}
+  td.ru b{color:var(--ink);font-weight:600}
+  td.ex{font-style:italic;color:#3a3833}
+  td.ex .e{display:block;margin-bottom:5px}
+  td.ex .e:last-child{margin-bottom:0}
+  .src{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.05em;
+    background:var(--tag-bg);color:var(--tag);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+  body.hiden td.w, body.hiden td.ex{background:var(--line);border-radius:5px}
+  body.hiden td.w, body.hiden td.w *,
+  body.hiden td.ex, body.hiden td.ex *{color:transparent !important}
+  body.hiden td.ex .src{background:transparent !important}
+  body.hiden td.w:hover, body.hiden td.ex:hover{background:transparent}
+  body.hiden td.w:hover{color:var(--ink) !important}
+  body.hiden td.w:hover *{color:var(--muted) !important}
+  body.hiden td.ex:hover, body.hiden td.ex:hover *{color:#3a3833 !important}
+  body.hiden td.ex:hover .src{background:var(--tag-bg) !important;color:var(--tag) !important}
+
+  .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .copyable{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;
+    background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:0 0 10px}
+  .copybtn{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer}
+  .copybtn:hover{background:#2f4a6b}
+  .copybtn.done{background:var(--ok)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Разговорные выражения · набор 1</h1>
+  <p class="sub">Собрано из тренажёра Unit 7 · работает в разговоре на любую тему</p>
+</header>
+
+<section>
+  <h2>15 выражений</h2>
+  <p class="hint">Первый пример — из тренажёра по погоде, второй — намеренно на другую тему: так видно, что выражение переносится куда угодно. Это тот слой языка, который на IELTS отличает «правильно» от «естественно». Кнопка «Скрыть английский» закрывает и выражение, и оба примера — остаётся только русское значение, по которому нужно вспомнить фразу. Наведите курсор на закрытую ячейку, чтобы проверить себя.</p>
+  <div class="tbl-tools">
+    <button class="tool" id="tEn">Скрыть английский</button>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th></th><th>Выражение</th><th>Перевод и когда уместно</th><th>Примеры</th></tr></thead>
+    <tbody>
+
+    <tr>
+      <td class="n">1</td>
+      <td class="w">I don't mind …<span class="note">дальше существительное или -ing</span></td>
+      <td class="ru"><b>я нормально к этому отношусь, меня не напрягает.</b> Не «мне всё равно» — это мягкое согласие, а не безразличие</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>I don't mind wet weather if it stays quite mild.</span>
+        <span class="e">I don't mind waiting — take your time.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">2</td>
+      <td class="w">I can't stand …<span class="note">существительное или -ing</span></td>
+      <td class="ru"><b>терпеть не могу.</b> Заметно сильнее, чем <i>I don't like</i> — беречь для настоящей неприязни</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>It's not the rain — it's the cold I can't stand.</span>
+        <span class="e">I can't stand being late for things.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">3</td>
+      <td class="w">To be honest, …</td>
+      <td class="ru"><b>честно говоря.</b> Смягчает неожиданное признание или несогласие; хорошо начинать им ответ</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>To be honest, I wasn't as annoyed as I expected.</span>
+        <span class="e">To be honest, I've never really enjoyed that kind of music.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">4</td>
+      <td class="w">Definitely. / Not really.</td>
+      <td class="ru"><b>однозначно / да не то чтобы.</b> Короткий ответ, после которого <u>обязательно</u> идёт объяснение — иначе экзаменатору не за что зацепиться</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>Does the weather affect your mood? — Definitely. If it's pouring, I put everything off.</span>
+        <span class="e">Are you nervous about the exam? — Not really. I've taken it once before.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">5</td>
+      <td class="w">Probably …</td>
+      <td class="ru"><b>пожалуй, наверное.</b> Так начинают ответ на вопрос «какой самый…», когда не хочется звучать категорично</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>Which season do you like least? — Probably late autumn. It gets dark so early.</span>
+        <span class="e">Who do you turn to for advice? — Probably my sister; she's the one I call first.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">6</td>
+      <td class="w">I find it (quite) + <i>adj</i><span class="note">также: I find him/her/them …</span></td>
+      <td class="ru"><b>мне это кажется, по-моему это…</b> Личная оценка вместо безличного <i>It is</i> — сразу звучит взрослее</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>The sky is overcast for weeks — I find it quite depressing.</span>
+        <span class="e">I find her explanations very easy to follow.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">7</td>
+      <td class="w">I'd take A over B.<span class="note">часто + any day</span></td>
+      <td class="ru"><b>я бы выбрал A, а не B.</b> Разговорный способ сравнить два варианта одной фразой</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>I'd take cold over hot any day.</span>
+        <span class="e">I'd take a quiet evening at home over a big party.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">8</td>
+      <td class="w">…, whereas …</td>
+      <td class="ru"><b>тогда как.</b> Противопоставление внутри одного предложения. Для IELTS почти обязательное: показывает сложную структуру без усилий</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>In a heatwave there's nothing you can do, whereas if it's cold you just put another jumper on.</span>
+        <span class="e">My brother loves big cities, whereas I'd rather live in a village.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">9</td>
+      <td class="w">the moment (that) …</td>
+      <td class="ru"><b>как только.</b> То же, что <i>as soon as</i>, но живее и эмоциональнее</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>The moment the sun comes out, I want to be in the park.</span>
+        <span class="e">I knew the moment I walked in that something was wrong.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">10</td>
+      <td class="w">on and off</td>
+      <td class="ru"><b>с перерывами, то начинается, то прекращается.</b> О погоде, привычках, занятиях — о чём угодно непостоянном</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>There's been light drizzle on and off since this morning.</span>
+        <span class="e">I've been learning Spanish on and off for years.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">11</td>
+      <td class="w">to end up + -ing</td>
+      <td class="ru"><b>в итоге оказаться, кончилось тем, что.</b> Обычно о результате, которого не планировали</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>We ended up sitting in the car for two hours watching the rain.</span>
+        <span class="e">We ended up ordering a pizza because nothing was open.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">12</td>
+      <td class="w">to get caught in …</td>
+      <td class="ru"><b>попасть под, застрять в.</b> Дождь, пробка, толпа — всё, из чего не выбраться сразу</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>We once got caught in a thunderstorm in the mountains.</span>
+        <span class="e">I got caught in traffic and missed the beginning of the film.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">13</td>
+      <td class="w">hardly any<span class="note">без <i>not</i>: отрицание уже внутри</span></td>
+      <td class="ru"><b>почти совсем нет.</b> Точнее и естественнее, чем <i>almost no</i></td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>We've had a very mild winter — hardly any snow at all.</span>
+        <span class="e">There was hardly any time to prepare.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">14</td>
+      <td class="w">there's nothing you can do (about it)</td>
+      <td class="ru"><b>тут ничего не поделаешь.</b> Готовая фраза для смирения с обстоятельствами</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>In a heatwave there's nothing you can do — you can't concentrate, you can't sleep.</span>
+        <span class="e">The flight's been cancelled and there's nothing we can do about it.</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="n">15</td>
+      <td class="w">to put sth off / to put off + -ing<span class="note">местоимение только внутри: <i>put it off</i></span></td>
+      <td class="ru"><b>откладывать на потом.</b> Из Unit 1 по фразовым глаголам — здесь он встретился снова, значит пора его присвоить</td>
+      <td class="ex">
+        <span class="e"><span class="src">Unit 7</span>If it's pouring, I'll put off anything that involves going outside.</span>
+        <span class="e">I keep putting off that phone call.</span>
+      </td>
+    </tr>
+
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>В Chatty</h2>
+  <p class="hint">Добавьте это третьим сообщением — после промта и списка слов по теме. Тогда ИИ будет вытягивать из вас не только лексику главы, но и сами конструкции.</p>
+  <div class="box">
+    <div class="copyable" id="phraseList">Also make me use these phrases during our conversation, and tell me at the end which ones I managed to use: I don't mind..., I can't stand..., to be honest, definitely, not really, probably, I find it quite..., I'd take A over B, whereas, the moment..., on and off, to end up doing something, to get caught in something, hardly any, there's nothing you can do, to put off doing something.</div>
+    <button class="copybtn" data-src="phraseList">Скопировать</button>
+  </div>
+</section>
+
+<footer>Набор 1 · из тренажёра Unit 7 Weather</footer>
+</div>
+
+<script>
+document.getElementById('tEn').onclick = function(){
+  document.body.classList.toggle('hiden');
+  const on = document.body.classList.contains('hiden');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать английский' : 'Скрыть английский';
+};
+document.querySelectorAll('.copybtn').forEach(btn => {
+  const original = btn.textContent;
+  btn.onclick = () => {
+    const text = document.getElementById(btn.dataset.src).innerText;
+    const done = () => {
+      btn.textContent = '✓ Скопировано'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+    } else fallback(text, done);
+  };
+});
+function fallback(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Скопируйте текст вручную.'); }
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>

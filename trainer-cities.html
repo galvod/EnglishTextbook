@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cities — City life + Towns</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862;
+    --line:#e3e0da; --accent:#3d5a80; --accent-soft:#eaf0f6;
+    --ok:#2d6a4f; --ok-bg:#e7f3ec;
+    --no:#9b2c2c; --no-bg:#fbeaea;
+    --warn:#8a6d1f; --warn-bg:#fdf6e3;
+    --b2:#7a4b8f; --b2-bg:#f3ecf7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  header{margin-bottom:28px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .progress-bar{height:4px;background:var(--line);border-radius:2px;margin-top:20px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .4s ease}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 4px}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 20px}
+
+  .tbl-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .tool{font:inherit;font-size:13.5px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--muted)}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+  .tool.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1.5px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr.grp td{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;padding:9px 10px}
+  td.w{font-weight:600;width:25%}
+  td.ru{color:var(--muted);width:27%}
+  td.ex{font-style:italic;color:#3a3833}
+  .b2tag{display:inline-block;font-size:10px;font-style:normal;font-weight:700;letter-spacing:.06em;
+    background:var(--b2-bg);color:var(--b2);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  body.hiden td.w, body.hiden td.ex,
+  body.hidex td.ex{background:var(--line);border-radius:5px}
+  body.hiden td.w, body.hiden td.w *,
+  body.hiden td.ex, body.hiden td.ex *,
+  body.hidex td.ex, body.hidex td.ex *{color:transparent !important}
+  body.hiden td.w .b2tag{background:transparent !important}
+  body.hiden td.w:hover, body.hiden td.ex:hover,
+  body.hidex td.ex:hover{background:transparent}
+  body.hiden td.w:hover, body.hiden td.w:hover *{color:var(--ink) !important}
+  body.hiden td.ex:hover, body.hiden td.ex:hover *,
+  body.hidex td.ex:hover, body.hidex td.ex:hover *{color:#3a3833 !important}
+  body.hiden td.w:hover .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
+
+  .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+  .box h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+  .copyable{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;
+    max-height:230px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:0 0 10px}
+  .copybtn{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer}
+  .copybtn:hover{background:#2f4a6b}
+  .copybtn.done{background:var(--ok)}
+  .steps{margin:0 0 18px;padding-left:20px;color:var(--muted);font-size:14.5px}
+  .steps li{margin-bottom:4px}
+
+  .q{padding:16px 0;border-top:1px solid var(--line)}
+  .q:first-of-type{border-top:none;padding-top:4px}
+  .prompt{margin:0 0 12px}
+  .num{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:8px;font-size:14px}
+  .en{font-style:italic;color:#333}
+  .gloss{color:var(--muted);font-size:13.5px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  button.opt{
+    font:inherit;font-size:15px;background:#fff;border:1.5px solid var(--line);
+    border-radius:9px;padding:9px 15px;cursor:pointer;transition:.15s;color:var(--ink);
+  }
+  button.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  button.opt:disabled{cursor:default;opacity:.55}
+  button.opt.picked-ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);font-weight:600;opacity:1}
+  button.opt.picked-no{background:var(--no-bg);border-color:var(--no);color:var(--no);font-weight:600;opacity:1}
+  button.opt.reveal{border-color:var(--ok);color:var(--ok);opacity:1}
+
+  input.gap{
+    font:inherit;font-size:15px;border:none;border-bottom:1.5px solid var(--accent);
+    background:transparent;padding:2px 6px;min-width:150px;color:var(--ink);
+  }
+  input.gap:focus{outline:none;background:var(--accent-soft)}
+  input.gap.ok{border-color:var(--ok);color:var(--ok);font-weight:600}
+  input.gap.no{border-color:var(--no);color:var(--no)}
+  .check{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;margin-left:10px}
+  .check:hover{background:#2f4a6b}
+
+  .fb{margin:11px 0 0;font-size:14.5px;padding:10px 13px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.ok{background:var(--ok-bg);color:var(--ok)}
+  .fb.no{background:var(--no-bg);color:var(--no)}
+  .fb b{font-weight:700}
+
+  .say{border-top:1px solid var(--line);padding:15px 0}
+  .say:first-of-type{border-top:none}
+  .say p{margin:0 0 9px}
+  .peek{font:inherit;font-size:13.5px;background:none;border:1px dashed var(--line);border-radius:7px;padding:5px 11px;cursor:pointer;color:var(--muted)}
+  .peek:hover{border-color:var(--accent);color:var(--accent)}
+  .answer{display:none;margin:9px 0 0;padding:10px 13px;background:var(--accent-soft);border-radius:8px;font-size:14.5px}
+  .answer.show{display:block}
+  .cue{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:15px 17px;margin:6px 0 12px}
+  .cue p{margin:0 0 6px}
+  .cue ul{margin:6px 0 0;padding-left:20px;color:var(--muted)}
+  .warnbox{background:var(--warn-bg);color:var(--warn);border-radius:9px;padding:12px 15px;font-size:14.5px;margin:0 0 18px}
+
+  #result{text-align:center;padding:34px 24px}
+  #result .score{font-size:44px;font-weight:700;letter-spacing:-.02em;margin:0}
+  #result .of{color:var(--muted);font-size:15px;margin:2px 0 16px}
+  #result .verdict{font-size:17px;margin:0 auto;max-width:480px}
+  .again{font:inherit;margin-top:22px;background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;font-size:15px}
+  .weak{margin-top:20px;font-size:14.5px;color:var(--muted);text-align:left;background:var(--bg);border-radius:9px;padding:14px 16px}
+  .weak b{color:var(--ink)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Cities · города</h1>
+  <p class="sub">Две главы сразу: <i>City life</i> (Pre-Int/Int, unit 26) + <i>Towns</i> (Upper-int, unit 25) · B2–C1 / IELTS · 35 минут</p>
+  <div class="progress-bar"><div class="progress-fill" id="pf"></div></div>
+</header>
+
+<section>
+  <h2>Как устроен этот документ</h2>
+  <p class="hint" style="margin-bottom:14px">Главы объединены не подряд, а <b>по темам</b> — так, как их спрашивают на экзамене. Учебники дополняют друг друга почти без пересечений: младший даёт язык повседневной жизни в городе (пробки, час пик, ночная жизнь, плюсы и минусы), старший — язык описания города со стороны (районы, объекты, архитектура, городские проблемы как явление). Четыре блока таблицы отвечают на четыре вопроса.</p>
+  <ol class="steps">
+    <li><b>Из чего состоит город</b> — районы, объекты, инфраструктура.</li>
+    <li><b>Какими словами его описывать</b> — прилагательные от <i>picturesque</i> до <i>run-down</i>.</li>
+    <li><b>Плюсы и минусы жизни в нём</b> — час пик, пробки, преступность, но и разнообразие людей.</li>
+    <li><b>Что в городе интересного</b> — досуг, культура, «всегда что-то происходит».</li>
+  </ol>
+  <p class="hint" style="margin:0">Порядок работы прежний: таблица → «Скрыть английский» и второй проход вслух → упражнения → Chatty → разделы Speaking уже после разговора.</p>
+</section>
+
+<section>
+  <h2>Вокабуляр</h2>
+  <p class="hint">Обе главы плюс пять слов уровня B2–C1 сверх учебников и блок фраз для аргументации — они помечены <span class="b2tag">B2</span>. Наведите курсор на скрытую ячейку, чтобы подсмотреть одну строку.</p>
+  <div class="tbl-tools">
+    <button class="tool" id="tEn">Скрыть английский</button>
+    <button class="tool" id="tEx">Скрыть примеры</button>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Word</th><th>Перевод</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">A · Из чего состоит город</td></tr>
+      <tr><td class="w">the city / town centre</td><td class="ru">центр города</td><td class="ex">The main business and shopping centre lies on an island in the river.</td></tr>
+      <tr><td class="w">the suburbs</td><td class="ru">пригороды, спальные районы</td><td class="ex">Many of the suburbs are within walking distance of the centre.</td></tr>
+      <tr><td class="w">the outskirts</td><td class="ru">окраина, самый край города</td><td class="ex">A new science park has been built on the outskirts, two kilometres out.</td></tr>
+      <tr><td class="w">a residential area / district</td><td class="ru">жилой район</td><td class="ex">The fashionable residential districts overlook the harbour.</td></tr>
+      <tr><td class="w">a housing estate</td><td class="ru">жилой массив, застройка одного проекта</td><td class="ex">She grew up on a housing estate on the edge of the city.</td></tr>
+      <tr><td class="w">an industrial estate</td><td class="ru">промзона</td><td class="ex">Most of the warehouses are on an industrial estate outside town.</td></tr>
+      <tr><td class="w">population</td><td class="ru">население</td><td class="ex">Cork has a population of about 119,500.</td></tr>
+      <tr><td class="w">facilities</td><td class="ru">объекты, инфраструктура (всегда мн. ч.)</td><td class="ex">The town has excellent sports and arts facilities.</td></tr>
+      <tr><td class="w">within walking distance of</td><td class="ru">в шаговой доступности от</td><td class="ex">The hotel is within walking distance of the station.</td></tr>
+      <tr><td class="w">to overlook</td><td class="ru">выходить окнами на, возвышаться над</td><td class="ex">Most of the picturesque colleges overlook the river.</td></tr>
+      <tr><td class="w">a site</td><td class="ru">место, площадка (где что-то стоит или стояло)</td><td class="ex">The church was built on the site of an older one.</td></tr>
+      <tr><td class="w">open spaces</td><td class="ru">открытые пространства, скверы и площади</td><td class="ex">There are a lot of open spaces in the centre of London.</td></tr>
+      <tr><td class="w">Спорт</td><td class="ru">объекты</td><td class="ex">swimming pool · sports centre · golf course · tennis courts · football pitch · skating rink</td></tr>
+      <tr><td class="w">Культура</td><td class="ru">объекты</td><td class="ex">theatre · opera house · concert hall · art gallery · museum</td></tr>
+      <tr><td class="w">Образование</td><td class="ru">объекты</td><td class="ex">school · college · university · library · adult education centre</td></tr>
+      <tr><td class="w">Еда и ночлег</td><td class="ru">объекты</td><td class="ex">restaurant · take-away · hotel · B&amp;B · youth hostel · club</td></tr>
+      <tr><td class="w">Транспорт</td><td class="ru">объекты</td><td class="ex">bus service · taxi rank · car hire · car park · parking meters</td></tr>
+      <tr><td class="w">Прочее</td><td class="ru">городские службы</td><td class="ex">health centre · law courts · registry office · job centre · department store · chemist's · police station · Town Hall · estate agent</td></tr>
+
+      <tr class="grp"><td colspan="3">B · Какими словами описывать город</td></tr>
+      <tr><td class="w">picturesque</td><td class="ru">живописный, «как с открытки»</td><td class="ex">The most picturesque parts of the town are beside the river.</td></tr>
+      <tr><td class="w">historic</td><td class="ru">исторический, с историей</td><td class="ex">Cambridge is one of England's most historic towns.</td></tr>
+      <tr><td class="w">elegant</td><td class="ru">изящный, с тонкой архитектурой</td><td class="ex">Some of the eighteenth-century buildings are particularly elegant.</td></tr>
+      <tr><td class="w">magnificent</td><td class="ru">великолепный, впечатляющий масштабом</td><td class="ex">The most magnificent building in the town is the old library.</td></tr>
+      <tr><td class="w">imposing</td><td class="ru">внушительный, подавляющий размером</td><td class="ex">The cathedral is an imposing 19th-century building.</td></tr>
+      <tr><td class="w">spacious</td><td class="ru">просторный</td><td class="ex">The town could hardly be called spacious — most of the streets are narrow.</td></tr>
+      <tr><td class="w">lively</td><td class="ru">оживлённый, полный жизни</td><td class="ex">The town is very lively at night because so many young people live there.</td></tr>
+      <tr><td class="w">bustling</td><td class="ru">кипящий движением</td><td class="ex">The market is particularly bustling on Saturdays.</td></tr>
+      <tr><td class="w">packed</td><td class="ru">битком набитый</td><td class="ex">The shopping centre always seems to be packed with people.</td></tr>
+      <tr><td class="w">deserted</td><td class="ru">безлюдный, ни души</td><td class="ex">When the students leave, the town can seem quite deserted.</td></tr>
+      <tr><td class="w">crowded ↔ quiet</td><td class="ru">многолюдный ↔ тихий</td><td class="ex">Cities always seem crowded; I'd rather live somewhere quiet.</td></tr>
+      <tr><td class="w">filthy ↔ clean</td><td class="ru">крайне грязный ↔ чистый</td><td class="ex">Nowhere in the town is filthy; everywhere is quite clean.</td></tr>
+      <tr><td class="w">run-down</td><td class="ru">обветшавший, запущенный</td><td class="ex">Some of the suburbs have become quite run-down in recent years.</td></tr>
+      <tr><td class="w">fashionable</td><td class="ru">престижный, модный (о районе)</td><td class="ex">They live in a fashionable district overlooking the harbour.</td></tr>
+      <tr><td class="w">to be well worth a visit</td><td class="ru">определённо стоит посетить</td><td class="ex">The art gallery is well worth a visit.</td></tr>
+      <tr><td class="w">to tend to be</td><td class="ru">обычно бывает, как правило</td><td class="ex">The buses tend to be overcrowded at that time of day.</td></tr>
+
+      <tr class="grp"><td colspan="3">C · Плюсы и минусы жизни в городе</td></tr>
+      <tr><td class="w">the rush hour</td><td class="ru">час пик</td><td class="ex">For me the rush hour is the worst time of day.</td></tr>
+      <tr><td class="w">to be in a hurry</td><td class="ru">спешить</td><td class="ex">Everywhere is busy and everyone seems to be in a hurry.</td></tr>
+      <tr><td class="w">to get stuck in a traffic jam</td><td class="ru">застрять в пробке</td><td class="ex">I sometimes get stuck in traffic jams for half an hour.</td></tr>
+      <tr><td class="w">a commuter</td><td class="ru">тот, кто ездит на работу из пригорода</td><td class="ex">Commuters get very stressed when the trains are delayed.</td></tr>
+      <tr><td class="w">stressful → stressed</td><td class="ru">напряжённый (о ситуации) → на нервах (о человеке)</td><td class="ex">The journey is stressful, and I arrive completely stressed.</td></tr>
+      <tr><td class="w">exhausted</td><td class="ru">измотанный, без сил</td><td class="ex">I get home in the evening feeling exhausted.</td></tr>
+      <tr><td class="w">a car park · a parking space</td><td class="ru">парковка (вся) · одно место</td><td class="ex">The car park was full and I couldn't find a parking space anywhere.</td></tr>
+      <tr><td class="w">pollution</td><td class="ru">загрязнение воздуха и воды</td><td class="ex">Pollution is much worse in big cities, and so is the crime rate.</td></tr>
+      <tr><td class="w">the crime rate</td><td class="ru">уровень преступности</td><td class="ex">The crime rate here has fallen over the last ten years.</td></tr>
+      <tr><td class="w">overcrowding</td><td class="ru">перенаселённость</td><td class="ex">Overcrowding makes living conditions very difficult.</td></tr>
+      <tr><td class="w">slums</td><td class="ru">трущобы</td><td class="ex">Slums are the result of poverty: people have no money to spend on housing.</td></tr>
+      <tr><td class="w">vandalism</td><td class="ru">вандализм</td><td class="ex">Vandalism is the pointless destruction of public property.</td></tr>
+      <tr><td class="w">advantages ↔ disadvantages</td><td class="ru">преимущества ↔ недостатки</td><td class="ex">One of the advantages of living in the city is the nightlife.</td></tr>
+      <tr><td class="w">good value for money</td><td class="ru">хорошее соотношение цены и качества</td><td class="ex">You get better value for money in a smaller town.</td></tr>
+      <tr><td class="w">a real mix of people</td><td class="ru">настоящая смесь разных людей</td><td class="ex">You get a real mix of people and nationalities in a big city.</td></tr>
+
+      <tr class="grp"><td colspan="3">D · Что в городе интересного</td></tr>
+      <tr><td class="w">nightlife</td><td class="ru">ночная жизнь: бары, клубы, рестораны</td><td class="ex">Is there plenty to do in the evening? — Yes, the nightlife is great.</td></tr>
+      <tr><td class="w">cultural activities</td><td class="ru">культурная жизнь</td><td class="ex">If you're interested in cultural activities, there's the theatre and two galleries.</td></tr>
+      <tr><td class="w">a wide variety of</td><td class="ru">большой выбор, широкий ассортимент</td><td class="ex">There's a wide variety of bars, clubs and restaurants to go to.</td></tr>
+      <tr><td class="w">to put on an exhibition</td><td class="ru">устраивать выставку</td><td class="ex">The gallery regularly puts on exhibitions by contemporary artists.</td></tr>
+      <tr><td class="w">to cater for</td><td class="ru">быть рассчитанным на кого-л.</td><td class="ex">The markets don't cater specifically for tourists.</td></tr>
+      <tr><td class="w">there's always something going on</td><td class="ru">всегда что-то происходит</td><td class="ex">There's always something going on, so life is never dull.</td></tr>
+      <tr><td class="w">dull ↔ exciting</td><td class="ru">скучный ↔ увлекательный</td><td class="ex">Life in a big city is never dull.</td></tr>
+
+      <tr class="grp"><td colspan="3">E · Пять слов сверх учебников</td></tr>
+      <tr><td class="w">the cost of living <span class="b2tag">B2</span></td><td class="ru">стоимость жизни</td><td class="ex">The cost of living in the capital is far higher than anywhere else.</td></tr>
+      <tr><td class="w">affordable housing <span class="b2tag">B2</span></td><td class="ru">доступное жильё</td><td class="ex">The city badly needs more affordable housing for young families.</td></tr>
+      <tr><td class="w">vibrant <span class="b2tag">B2</span></td><td class="ru">кипящий жизнью (сильнее, чем lively)</td><td class="ex">It's a vibrant city — there's something going on at any hour.</td></tr>
+      <tr><td class="w">urban sprawl <span class="b2tag">B2</span></td><td class="ru">бесконтрольное разрастание города</td><td class="ex">Urban sprawl has swallowed up most of the farmland around the city.</td></tr>
+      <tr><td class="w">to regenerate · regeneration <span class="b2tag">B2</span></td><td class="ru">обновлять запущенный район · реновация</td><td class="ex">The old docks have been regenerated and are now the most fashionable area.</td></tr>
+
+      <tr class="grp"><td colspan="3">F · Каркас рассуждения — для «за и против»</td></tr>
+      <tr><td class="w">On the plus side, … <span class="b2tag">B2</span></td><td class="ru">из плюсов…</td><td class="ex">On the plus side, you get a real mix of people and nationalities.</td></tr>
+      <tr><td class="w">The main drawback is (that) … <span class="b2tag">B2</span></td><td class="ru">главный минус в том, что…</td><td class="ex">The main drawback is that housing is simply unaffordable.</td></tr>
+      <tr><td class="w">What I'd miss most is … <span class="b2tag">B2</span></td><td class="ru">больше всего мне не хватало бы…</td><td class="ex">What I'd miss most is being able to walk everywhere.</td></tr>
+      <tr><td class="w">It's a trade-off between X and Y <span class="b2tag">B2</span></td><td class="ru">это выбор между одним и другим</td><td class="ex">It's a trade-off between space and convenience.</td></tr>
+      <tr><td class="w">It works both ways. <span class="b2tag">B2</span></td><td class="ru">тут палка о двух концах</td><td class="ex">Tourism brings money in, but it pushes rents up — it works both ways.</td></tr>
+      <tr><td class="w">Having said that, … <span class="b2tag">B2</span></td><td class="ru">при этом, впрочем… (уступка)</td><td class="ex">Having said that, I wouldn't want to raise children here.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Для Chatty</h2>
+  <p class="hint">Промт первым сообщением, слова вторым. С четвёртой темы ИИ переходит на вопросы Part 3 — об урбанизации и жилье, а не о вас.</p>
+
+  <div class="box">
+    <h3>1 · Промт</h3>
+    <div class="copyable" id="promptText">You are my speaking partner. I'm B2 moving towards C1, preparing for IELTS Speaking. Topic: CITIES AND TOWNS.
+
+1. Your turns: 2-3 sentences, always ending with a question. I do 80% of the talking.
+2. Use my word list (next message). Put 1-2 of those words into every turn of yours, and steer me into using them too.
+3. Move through these stages, about 3 exchanges each: the town or city I live in and what it looks like - what facilities it has and what is missing - the advantages and disadvantages of living there - the most interesting city I have ever visited - why people move to cities and what makes a city a good place to live.
+4. From stage 4 onwards, ask IELTS Part 3 questions: abstract, about society and the future, not about me personally.
+5. Whenever I give an opinion, ask me for the other side of the argument before you move on.
+6. End each turn with one short line "Better: ..." - one grammar fix, or a stronger word from the list I should have used. One line only.
+7. After 15 exchanges: tell me which words I used and which I didn't, then ask me to make a sentence with each unused one.
+
+Start by asking me to describe the place where I live.</div>
+    <button class="copybtn" data-src="promptText">Скопировать промт</button>
+  </div>
+
+  <div class="box">
+    <h3>2 · Слова</h3>
+    <div class="copyable" id="wordsText">Here is my word list for today: the city centre, the suburbs, the outskirts, a residential district, a housing estate, an industrial estate, population, facilities, within walking distance of, to overlook, open spaces, picturesque, historic, elegant, magnificent, imposing, spacious, lively, bustling, packed, deserted, crowded, filthy, run-down, fashionable, well worth a visit, to tend to be, the rush hour, to get stuck in a traffic jam, commuters, stressful, exhausted, a car park, a parking space, pollution, the crime rate, overcrowding, slums, vandalism, advantages and disadvantages, good value for money, a real mix of people, nightlife, cultural activities, a wide variety of, to put on an exhibition, to cater for, there's always something going on, dull, the cost of living, affordable housing, vibrant, urban sprawl, regeneration. Also push me to use these phrases: on the plus side, the main drawback is, what I'd miss most is, it's a trade-off between, it works both ways, having said that.</div>
+    <button class="copybtn" data-src="wordsText">Скопировать слова</button>
+  </div>
+</section>
+
+<section>
+  <h2>1 · Слово к слову</h2>
+  <p class="hint">Восемь сочетаний, которые в английском срослись намертво. Их учат целиком.</p>
+  <div id="ex1"></div>
+</section>
+
+<section>
+  <h2>2 · Части города</h2>
+  <p class="hint">Здесь легко промахнуться: по-русски и <i>suburbs</i>, и <i>outskirts</i>, и <i>housing estate</i> часто переводятся одним словом «район».</p>
+  <div id="ex2"></div>
+</section>
+
+<section>
+  <h2>3 · Куда пойти</h2>
+  <p class="hint">Впишите название объекта с артиклем. Enter — проверить.</p>
+  <div id="ex3"></div>
+</section>
+
+<section>
+  <h2>4 · Оттенки: чем описать город</h2>
+  <p class="hint">Главный раздел. Все варианты переводятся похоже, но описывают разное: одни — вид, другие — состояние, третьи — количество людей.</p>
+  <div id="ex4"></div>
+</section>
+
+<section>
+  <h2>5 · Проблема по решению</h2>
+  <p class="hint">Дано решение — назовите проблему одним словом из блока C. Именно эти пары «проблема — решение» просят на IELTS Writing Task 2.</p>
+  <div id="ex5"></div>
+</section>
+
+<section>
+  <h2>6 · Скажите короче</h2>
+  <p class="hint">Замените описание одним словом из главы. Так проверяется, стало ли слово активным.</p>
+  <div id="ex6"></div>
+</section>
+
+<section>
+  <h2>7 · Ловушки</h2>
+  <div class="warnbox"><b>Common mistakes из обоих учебников.</b> Четыре из пяти ошибок ниже допускают почти все: <i>a parking</i> вместо <i>a parking space</i>, <i>stressing</i> вместо <i>stressed</i>, <i>open places</i> вместо <i>open spaces</i> и множественное число у неисчисляемых.</div>
+  <div id="ex7"></div>
+</section>
+
+<section>
+  <h2>8 · Слова сверх учебников</h2>
+  <p class="hint">Впишите выражение из блока E.</p>
+  <div id="ex8"></div>
+</section>
+
+<section>
+  <h2>9 · Скажите вслух · IELTS Part 1</h2>
+  <p class="hint">Два-три предложения на вопрос. Сначала свой ответ вслух, потом подсматривайте.</p>
+  <div id="ex9"></div>
+</section>
+
+<section>
+  <h2>10 · IELTS Part 2</h2>
+  <p class="hint">Минута на подготовку, две минуты говорить. Запишите себя и посчитайте слова из таблицы.</p>
+  <div class="cue">
+    <p><b>Describe a city you have visited that you would like to live in.</b></p>
+    <p>You should say:</p>
+    <ul>
+      <li>which city it was and when you went there</li>
+      <li>what the city looks like</li>
+      <li>what facilities it has</li>
+      <li>and explain why you would like to live there.</li>
+    </ul>
+  </div>
+  <div id="ex10"></div>
+</section>
+
+<section>
+  <h2>11 · IELTS Part 3 · рассуждение</h2>
+  <p class="hint">Схема ответа: позиция → причина → пример → уступка через <i>having said that</i> или <i>it works both ways</i>. Именно уступка отличает ответ на 7 от ответа на 6.</p>
+  <div id="ex11"></div>
+</section>
+
+<section id="result" style="display:none">
+  <p class="score" id="score">0</p>
+  <p class="of">из <span id="total">0</span> — <span id="pct">0</span>%</p>
+  <p class="verdict" id="verdict"></p>
+  <div class="weak" id="weak" style="display:none"></div>
+  <button class="again" onclick="location.reload()">Пройти заново</button>
+</section>
+
+<footer>Redman, <i>EVIU Pre-intermediate and Intermediate</i>, Unit 26 City life · McCarthy &amp; O'Dell, <i>EVIU Upper-intermediate</i>, Unit 25 Towns · CUP</footer>
+</div>
+
+<script>
+/* ============ 1 · СОЧЕТАНИЯ ============ */
+const EX1 = [
+  {p:"the town ___ <span class='gloss'>(центральная часть города)</span>", o:["centre","middle","core"], a:0,
+   f:"<b>the town centre</b> / <i>the city centre</i>. В американском варианте — <i>downtown</i>."},
+  {p:"a traffic ___ <span class='gloss'>(длинная стоящая вереница машин)</span>", o:["block","jam","queue"], a:1,
+   f:"<b>a traffic jam.</b> Глагол к нему — <i>get stuck in</i>."},
+  {p:"the ___ hour <span class='gloss'>(когда все едут на работу и с работы)</span>", o:["busy","hurry","rush"], a:2,
+   f:"<b>the rush hour.</b> Хотя длится он обычно часа два-три."},
+  {p:"the crime ___ <span class='gloss'>(сколько преступлений происходит)</span>", o:["rate","level","number"], a:0,
+   f:"<b>the crime rate</b> — как <i>the birth rate</i>, <i>the unemployment rate</i>."},
+  {p:"good ___ for money <span class='gloss'>(за свои деньги получаешь достойное)</span>", o:["price","value","cost"], a:1,
+   f:"<b>good value for money.</b> Без артикля: <i>It's good value for money</i>, не <s>a good value</s>."},
+  {p:"a car ___ <span class='gloss'>(вся стоянка целиком)</span>", o:["park","place","stop"], a:0,
+   f:"<b>a car park.</b> В США — <i>a parking lot</i>."},
+  {p:"a parking ___ <span class='gloss'>(одно место для одной машины)</span>", o:["place","space","point"], a:1,
+   f:"<b>a parking space.</b> И никогда <s>a parking</s> — это самая частая ошибка главы."},
+  {p:"___ life <span class='gloss'>(бары, клубы, рестораны вечером)</span>", o:["evening","late","night"], a:2,
+   f:"<b>nightlife</b>, одним словом. <i>The nightlife here is great.</i>"}
+];
+
+/* ============ 2 · ЧАСТИ ГОРОДА ============ */
+const EX2 = [
+  {p:"Кварталы жилых домов вокруг центра, откуда люди каждый день ездят на работу.", o:["the suburbs","the outskirts","an industrial estate"], a:0,
+   f:"<b>the suburbs</b> — жилая зона вокруг центра. Отсюда и слово <i>commuters</i>: это те, кто оттуда ездит."},
+  {p:"Научный парк построили на самом краю города, дальше начинаются поля.", o:["in the suburbs","on the outskirts","in the city centre"], a:1,
+   f:"<b>on the outskirts</b> — про географический край. <i>Suburbs</i> — про то, что там живут; <i>outskirts</i> — просто про «с краю», там может быть что угодно."},
+  {p:"Район, застроенный одинаковыми домами по одному проекту.", o:["a housing estate","a residential district","an industrial estate"], a:0,
+   f:"<b>a housing estate</b> — массив, построенный разом, часто муниципальный. <i>A residential district</i> — любой жилой район вообще."},
+  {p:"Зона складов, заводов и офисов компаний.", o:["a housing estate","an industrial estate","a business centre"], a:1,
+   f:"<b>an industrial estate.</b> Слово <i>estate</i> здесь означает не «имение», а «территория одного назначения»."},
+  {p:"Отель в десяти минутах пешком от центра.", o:["on the outskirts","within walking distance of the centre","overlooking the centre"], a:1,
+   f:"<b>within walking distance of.</b> Готовый оборот, очень выручает в Part 2."},
+  {p:"Дома стоят на холме, из окон видна гавань.", o:["They overlook the harbour.","They oversee the harbour.","They look over to the harbour."], a:0,
+   f:"<b>to overlook</b> — выходить окнами на, возвышаться над. <i>Oversee</i> — «руководить», совсем другое слово."}
+];
+
+/* ============ 3 · КУДА ПОЙТИ ============ */
+const EX3 = [
+  {pre:"Where would you go in order to dance? →", post:"", a:["a club","club","a nightclub"],
+   f:"<b>a club.</b>"},
+  {pre:"…to find a taxi? →", post:"", a:["a taxi rank","taxi rank"],
+   f:"<b>a taxi rank</b> — стоянка такси. В США — <i>a taxi stand</i>."},
+  {pre:"…to get married? →", post:"", a:["a registry office","the registry office","registry office"],
+   f:"<b>a registry office</b> — загс."},
+  {pre:"…to buy a house? →", post:"", a:["an estate agent","an estate agent's","estate agent","estate agent's"],
+   f:"<b>an estate agent's</b> — агентство недвижимости. В США — <i>a realtor</i>."},
+  {pre:"…to see an exhibition? →", post:"", a:["an art gallery","art gallery","a gallery","a museum"],
+   f:"<b>an art gallery</b> — там <i>put on exhibitions</i>."},
+  {pre:"…to borrow a book? →", post:"", a:["a library","library","the library"],
+   f:"<b>a library.</b> Не <i>bookshop</i> — там книги покупают."},
+  {pre:"…to buy a meal to eat at home? →", post:"", a:["a take-away","a takeaway","take-away","takeaway"],
+   f:"<b>a take-away</b> — и заведение, и сама еда: <i>Let's get a take-away.</i>"},
+  {pre:"…to do an evening class? →", post:"", a:["an adult education centre","adult education centre","a college","an evening class","a community college"],
+   f:"<b>an adult education centre</b> или <i>a college</i>."}
+];
+
+/* ============ 4 · ОТТЕНКИ ============ */
+const EX4 = [
+  {p:"Субботний рынок: шум, движение, толкотня — и всё это приятно.", o:["bustling","packed","deserted"], a:0,
+   f:"<b>bustling</b> — про энергию и движение, оценка положительная. <i>Packed</i> — просто «набито», без восторга."},
+  {p:"В торговом центре не протолкнуться, идёшь боком.", o:["spacious","packed","lively"], a:1,
+   f:"<b>packed (with people)</b> — битком. Сильнее, чем <i>crowded</i>."},
+  {p:"Одиннадцать вечера, студенты разъехались, на улицах ни души.", o:["quiet","deserted","run-down"], a:1,
+   f:"<b>deserted</b> — совсем пусто, ни одного человека. <i>Quiet</i> — просто тихо, люди могут быть."},
+  {p:"Вечером полно народу, работают бары, откуда-то музыка.", o:["lively","historic","imposing"], a:0,
+   f:"<b>lively</b> — полный жизни. Если хочется сильнее и современнее — <i>vibrant</i> из блока E."},
+  {p:"Старый квартал у реки: узкие улочки, мостики, так и просится на открытку.", o:["magnificent","picturesque","spacious"], a:1,
+   f:"<b>picturesque</b> — буквально «как с картины». Про виды и уголки, а не про масштаб."},
+  {p:"Собор XIX века: огромный, тяжёлый, подавляет размером.", o:["imposing","elegant","picturesque"], a:0,
+   f:"<b>imposing</b> — внушительный, чуть давящий. <i>Magnificent</i> — тоже про масштаб, но с восхищением."},
+  {p:"Особняки XVIII века: выверенные пропорции, тонкая работа.", o:["imposing","elegant","bustling"], a:1,
+   f:"<b>elegant</b> — про изящество и вкус, а не про размер."},
+  {p:"Пригород обветшал: облупленные фасады, заколоченные окна.", o:["filthy","run-down","deserted"], a:1,
+   f:"<b>run-down</b> — про состояние зданий и района. Именно такие районы потом <i>regenerate</i>."},
+  {p:"На улицах мусор, пахнет, к стенам противно прикасаться.", o:["filthy","run-down","dull"], a:0,
+   f:"<b>filthy</b> — про грязь как таковую. Район может быть <i>run-down</i>, но чистый — и наоборот."},
+  {p:"Квартира с высокими потолками и большими комнатами.", o:["crowded","spacious","imposing"], a:1,
+   f:"<b>spacious</b> — просторный. И запомните ловушку из учебника: <i>open <b>spaces</b></i>, а не <s>open places</s>."}
+];
+
+/* ============ 5 · ПРОБЛЕМА ПО РЕШЕНИЮ ============ */
+const EX5 = [
+  {pre:"«They should provide good-quality state housing.» → Проблема:", post:"", a:["slums"],
+   f:"<b>slums</b> — трущобы. Причина одна: <i>poverty</i>."},
+  {pre:"«There should be stricter laws about traffic emissions.» → Проблема:", post:"", a:["pollution","air pollution"],
+   f:"<b>pollution.</b> Следствие — <i>deterioration in health</i>."},
+  {pre:"«They should restrict the number of people living in any one area.» → Проблема:", post:"", a:["overcrowding"],
+   f:"<b>overcrowding</b> — существительное. Прилагательное к нему: <i>the buses are overcrowded</i>."},
+  {pre:"«People who destroy public property should do community service.» → Проблема:", post:"", a:["vandalism"],
+   f:"<b>vandalism</b> — бессмысленная порча имущества."},
+  {pre:"«We need a much better public transport system.» → Проблема:", post:"", a:["traffic jams","traffic jam","congestion","traffic"],
+   f:"<b>traffic jams</b> — или книжнее: <i>congestion</i>."}
+];
+
+/* ============ 6 · СКАЖИТЕ КОРОЧЕ ============ */
+const EX6 = [
+  {pre:"I was very tired after the journey. → I was", post:".", a:["exhausted"],
+   f:"<b>exhausted</b> — не просто устал, а выжат."},
+  {pre:"I was nervous and worried all day. → I was very", post:".", a:["stressed"],
+   f:"<b>stressed</b> — про человека. Про ситуацию — <i>stressful</i>."},
+  {pre:"The square is always full of activity. → The square is always very", post:".", a:["lively","bustling"],
+   f:"<b>lively</b> (или <i>bustling</i>)."},
+  {pre:"The air here is dirty. → There's a lot of", post:"here.", a:["pollution"],
+   f:"<b>pollution</b> — неисчисляемое, без артикля."},
+  {pre:"They want to do everything very quickly. → They're always in a", post:".", a:["hurry","rush"],
+   f:"<b>in a hurry.</b> Или <i>in a rush</i>."},
+  {pre:"There was nowhere to leave the car. → There was nowhere to", post:".", a:["park"],
+   f:"<b>park</b> — глагол."},
+  {pre:"There isn't much happening here. → There isn't much going", post:"here.", a:["on"],
+   f:"<b>going on.</b> Утвердительно: <i>There's always something going on.</i>"},
+  {pre:"Poverty doesn't exist here. → You don't", post:"poverty here.", a:["get","find"],
+   f:"<b>you get</b> в значении «встречается, бывает»: <i>You get a real mix of people in a big city.</i>"}
+];
+
+/* ============ 7 · ЛОВУШКИ ============ */
+const EX7 = [
+  {p:"Что верно?", o:["I couldn't find a parking.","I couldn't find a parking space.","Оба верны"], a:1,
+   f:"<b>a parking space</b> или <i>a car park</i>. Слова <s>a parking</s> в английском нет."},
+  {p:"Что верно?", o:["The journey was very stressing.","The journey was very stressful.","Оба верны"], a:1,
+   f:"Ситуация — <b>stressful</b>, человек — <b>stressed</b>. <s>Stressing</s> не бывает."},
+  {p:"Что верно?", o:["There are a lot of open places in the centre.","There are a lot of open spaces in the centre.","Оба верны"], a:1,
+   f:"<b>open spaces</b> — учебник выносит это в отдельную рамку с ошибками."},
+  {p:"Что верно?", o:["There was a lot of traffic this morning.","There were a lot of traffics this morning.","Оба верны"], a:0,
+   f:"<b>traffic</b> неисчисляемое. Как и <i>pollution</i>, <i>crime</i>, <i>accommodation</i>."},
+  {p:"Что верно?", o:["It's a good value for money.","It's good value for money.","Оба верны"], a:1,
+   f:"Без артикля: <b>good value for money</b>."}
+];
+
+/* ============ 8 · СВЕРХ УЧЕБНИКОВ ============ */
+const EX8 = [
+  {pre:"The", post:"of living in the capital is far higher than in the rest of the country.", a:["cost"],
+   f:"<b>the cost of living</b> — стоимость жизни. Не путать с <i>the standard of living</i>, уровнем жизни."},
+  {pre:"The city badly needs more", post:"housing for young families.", a:["affordable"],
+   f:"<b>affordable housing</b> — доступное жильё. Тема номер один в Part 3 про города."},
+  {pre:"It's a", post:"city — there's something going on at any hour of the day.", a:["vibrant"],
+   f:"<b>vibrant</b> — на ступень сильнее и современнее, чем <i>lively</i>."},
+  {pre:"Urban", post:"has swallowed up most of the farmland around the city.", a:["sprawl"],
+   f:"<b>urban sprawl</b> — расползание города вширь. Готовый термин для эссе."},
+  {pre:"The old docks have been completely", post:"and are now the most fashionable part of town.", a:["regenerated","redeveloped"],
+   f:"<b>regenerated.</b> Существительное — <i>regeneration</i>: <i>urban regeneration</i>."}
+];
+
+/* ============ 9 · PART 1 ============ */
+const EX9 = [
+  {q:"Tell me about the place where you live.",
+   a:"I live in a fairly large city, in a residential district about twenty minutes from the centre. It's not particularly picturesque, but everything I need is within walking distance, which matters more to me."},
+  {q:"What do you like most about it?",
+   a:"Probably the fact that there's always something going on. There's a wide variety of restaurants, the galleries put on decent exhibitions, and even on a Tuesday evening the centre is quite lively."},
+  {q:"Is there anything you'd like to change about your town?",
+   a:"The traffic, without a doubt. In the rush hour you can get stuck in a jam for forty minutes, and there's nowhere near enough parking in the centre."},
+  {q:"Would you rather live in a city or in the countryside?",
+   a:"A city, on balance — though it works both ways. I'd have far more space and cleaner air in a village, but what I'd miss most is being able to walk to a concert on a weekday evening."},
+  {q:"Are there many tourist attractions where you live?",
+   a:"A few. The old quarter by the river is genuinely historic and well worth a visit, but most of the city is fairly ordinary — people don't come here as tourists."},
+  {q:"Has your town changed much in recent years?",
+   a:"Quite a lot. Several run-down areas near the station have been regenerated, and the cost of living has risen sharply as a result — which is a mixed blessing for the people who grew up there."}
+];
+
+/* ============ 10 · PART 2 ============ */
+const EX10 = [
+  {q:"Разберите карточку по плану, затем сравните с образцом — в нём шестнадцать слов из таблицы.",
+   a:"I'd like to talk about Porto, which I visited two summers ago and would happily move to tomorrow. It's a city of about two hundred thousand people, built on hills overlooking the river, and the old centre is genuinely picturesque — narrow streets, tiled facades, and one absolutely magnificent bridge that dominates the whole view. What struck me was how lively it was without ever feeling packed. The riverside was bustling every evening, there was a wide variety of small restaurants rather than chains, and the galleries were putting on some really adventurous exhibitions. It has good facilities too: a proper concert hall, a decent public transport system, and open spaces right in the centre, which is rare. Some of the districts further out are still quite run-down, and I gather the cost of living has gone up a lot since the tourists arrived. Having said that, I'd still choose it — for me the trade-off between space and atmosphere comes down firmly on the side of atmosphere."}
+];
+
+/* ============ 11 · PART 3 ============ */
+const EX11 = [
+  {q:"Why do so many people move from the countryside to cities?",
+   a:"Mainly work — the jobs simply aren't there any more in rural areas, and young people follow them. Facilities matter too: better hospitals, universities, a wider variety of everything. Having said that, a lot of people arrive expecting more than they find, and end up in overcrowded housing on the outskirts."},
+  {q:"What are the biggest problems facing cities today?",
+   a:"Housing, I'd say, above everything else. When there isn't enough affordable housing, ordinary workers get pushed further and further out, and then congestion gets worse because they all have to commute in. Pollution and urban sprawl follow from the same cause, so they're really one problem with three symptoms."},
+  {q:"Should governments limit the growth of large cities?",
+   a:"I'm sceptical about limiting growth directly — people move where the work is, and you can't easily forbid that. What governments can do is make smaller cities genuinely attractive: invest in facilities and transport so that the trade-off isn't so one-sided. That's slower, but it addresses the cause rather than the symptom."},
+  {q:"What makes a city a good place to live?",
+   a:"For me it's whether you can live your daily life without a car — shops, work and green space all within walking distance. Beyond that, a real mix of people, which is what keeps a city from being dull. Wealth on its own doesn't do it: some very rich cities are deserted after six in the evening."},
+  {q:"How do you think cities will change over the next fifty years?",
+   a:"I'd expect a lot more regeneration of existing areas rather than building outwards, simply because urban sprawl has become too expensive to service. Probably fewer cars in centres as well. Though of course predictions like this have been made for decades and cities have a habit of not co-operating."}
+];
+
+/* ============ ДВИЖОК ============ */
+let answered = 0, correct = 0;
+const TOTAL = EX1.length + EX2.length + EX3.length + EX4.length + EX5.length + EX6.length + EX7.length + EX8.length;
+const missed = [];
+document.getElementById('total').textContent = TOTAL;
+
+function bump(ok, label){
+  answered++; if(ok) correct++; else if(label) missed.push(label);
+  document.getElementById('pf').style.width = (answered/TOTAL*100) + '%';
+  if(answered === TOTAL) finish();
+}
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;]/g,'').replace(/\s+/g,' ');
+}
+
+function buildChoice(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    q.innerHTML = `<p class="prompt"><span class="num">${i+1}</span>${item.p}</p>`;
+    const box = document.createElement('div'); box.className = 'opts';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    item.o.forEach((opt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'opt'; b.innerHTML = opt;
+      b.onclick = () => {
+        const ok = oi === item.a;
+        [...box.children].forEach((c,ci) => {
+          c.disabled = true;
+          if(ci === item.a && !ok) c.classList.add('reveal');
+        });
+        b.classList.add(ok ? 'picked-ok' : 'picked-no');
+        fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '✓ ' : '✗ ') + item.f;
+        bump(ok, ok ? null : item.o[item.a].replace(/<[^>]+>/g,''));
+      };
+      box.appendChild(b);
+    });
+    q.appendChild(box); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildChoice(document.getElementById('ex1'), EX1);
+buildChoice(document.getElementById('ex2'), EX2);
+buildChoice(document.getElementById('ex4'), EX4);
+buildChoice(document.getElementById('ex7'), EX7);
+
+function buildGap(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    const p = document.createElement('p'); p.className = 'prompt';
+    p.innerHTML = `<span class="num">${i+1}</span>${item.pre} `;
+    const inp = document.createElement('input');
+    inp.className = 'gap'; inp.type = 'text'; inp.placeholder = '…';
+    inp.setAttribute('autocomplete','off'); inp.setAttribute('autocapitalize','off');
+    inp.setAttribute('spellcheck','false');
+    const tail = document.createElement('span'); tail.innerHTML = ' ' + item.post;
+    const btn = document.createElement('button'); btn.className = 'check'; btn.textContent = 'Проверить';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    const go = () => {
+      if(inp.disabled) return;
+      const ok = item.a.some(x => norm(x) === norm(inp.value));
+      inp.disabled = true; btn.style.display = 'none';
+      inp.classList.add(ok ? 'ok' : 'no');
+      fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = ok
+        ? '✓ ' + (item.f || 'Верно.')
+        : '✗ Ответ: <b>' + item.a[0] + '</b>' + (item.f ? ' — ' + item.f : '');
+      bump(ok, ok ? null : item.a[0]);
+    };
+    btn.onclick = go;
+    inp.onkeydown = e => { if(e.key === 'Enter') go(); };
+    p.appendChild(inp); p.appendChild(tail); p.appendChild(btn);
+    q.appendChild(p); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildGap(document.getElementById('ex3'), EX3);
+buildGap(document.getElementById('ex5'), EX5);
+buildGap(document.getElementById('ex6'), EX6);
+buildGap(document.getElementById('ex8'), EX8);
+
+function buildSay(hostId, data, btnLabel){
+  const host = document.getElementById(hostId);
+  data.forEach((item, i) => {
+    const d = document.createElement('div'); d.className = 'say';
+    d.innerHTML = `<p>${data.length > 1 ? '<span class="num">'+(i+1)+'</span>' : ''}${item.q}</p>`;
+    const b = document.createElement('button'); b.className = 'peek'; b.textContent = btnLabel;
+    const a = document.createElement('p'); a.className = 'answer'; a.innerHTML = item.a;
+    b.onclick = () => { a.classList.add('show'); b.style.display = 'none'; };
+    d.appendChild(b); d.appendChild(a); host.appendChild(d);
+  });
+}
+buildSay('ex9', EX9, 'Показать вариант');
+buildSay('ex10', EX10, 'Показать образец ответа');
+buildSay('ex11', EX11, 'Показать вариант');
+
+document.getElementById('tEn').onclick = function(){
+  document.body.classList.toggle('hiden');
+  const on = document.body.classList.contains('hiden');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать английский' : 'Скрыть английский';
+};
+document.getElementById('tEx').onclick = function(){
+  document.body.classList.toggle('hidex');
+  const on = document.body.classList.contains('hidex');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать примеры' : 'Скрыть примеры';
+};
+
+document.querySelectorAll('.copybtn').forEach(btn => {
+  const original = btn.textContent;
+  btn.onclick = () => {
+    const text = document.getElementById(btn.dataset.src).innerText;
+    const done = () => {
+      btn.textContent = '✓ Скопировано'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+    } else fallback(text, done);
+  };
+});
+function fallback(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Скопируйте текст вручную.'); }
+  document.body.removeChild(ta);
+}
+
+function finish(){
+  const pct = Math.round(correct / TOTAL * 100);
+  document.getElementById('score').textContent = correct;
+  document.getElementById('pct').textContent = pct;
+  let v;
+  if(pct >= 90) v = "Обе главы закрыты. Идите в Chatty и доведите разговор до Part 3 — про жильё и урбанизацию: там эта лексика и живёт.";
+  else if(pct >= 75) v = "Хорошо. Перечитайте разборы там, где ошиблись, и всё равно идите говорить — описание города складывается в разговоре быстрее, чем в упражнениях.";
+  else if(pct >= 50) v = "Слов много, они ещё не улеглись. Пройдите заново разделы «Части города» и «Оттенки», а разговор перенесите на завтра.";
+  else v = "Рано: две главы за раз — это большой объём. Вернитесь к таблице, пройдите её вслух с закрытым английским по одному блоку в день.";
+  document.getElementById('verdict').textContent = v;
+  if(missed.length){
+    const uniq = [...new Set(missed)];
+    document.getElementById('weak').innerHTML =
+      '<b>Забрать в Chatty:</b> ' + uniq.join(' · ') + '<br><br>Скажите ИИ: «Please make sure I use these words today: ' + uniq.join(', ') + '.»';
+    document.getElementById('weak').style.display = 'block';
+  }
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.scrollIntoView({behavior:'smooth', block:'center'});
+}
+</script>
+</body>
+</html>
