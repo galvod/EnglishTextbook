@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money — units 19 + 40</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862;
+    --line:#e3e0da; --accent:#3d5a80; --accent-soft:#eaf0f6;
+    --ok:#2d6a4f; --ok-bg:#e7f3ec;
+    --no:#9b2c2c; --no-bg:#fbeaea;
+    --warn:#8a6d1f; --warn-bg:#fdf6e3;
+    --b2:#7a4b8f; --b2-bg:#f3ecf7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  header{margin-bottom:28px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .progress-bar{height:4px;background:var(--line);border-radius:2px;margin-top:20px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .4s ease}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 4px}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 20px}
+
+  .tbl-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .tool{font:inherit;font-size:13.5px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--muted)}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+  .tool.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1.5px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr.grp td{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;padding:9px 10px}
+  td.w{font-weight:600;width:25%}
+  td.ru{color:var(--muted);width:27%}
+  td.ex{font-style:italic;color:#3a3833}
+  .b2tag{display:inline-block;font-size:10px;font-style:normal;font-weight:700;letter-spacing:.06em;
+    background:var(--b2-bg);color:var(--b2);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  body.hiden td.w, body.hiden td.ex,
+  body.hidex td.ex{background:var(--line);border-radius:5px}
+  body.hiden td.w, body.hiden td.w *,
+  body.hiden td.ex, body.hiden td.ex *,
+  body.hidex td.ex, body.hidex td.ex *{color:transparent !important}
+  body.hiden td.w .b2tag{background:transparent !important}
+  body.hiden td.w:hover, body.hiden td.ex:hover,
+  body.hidex td.ex:hover{background:transparent}
+  body.hiden td.w:hover, body.hiden td.w:hover *{color:var(--ink) !important}
+  body.hiden td.ex:hover, body.hiden td.ex:hover *,
+  body.hidex td.ex:hover, body.hidex td.ex:hover *{color:#3a3833 !important}
+  body.hiden td.w:hover .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
+
+  .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+  .box h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+  .copyable{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;
+    max-height:230px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:0 0 10px}
+  .copybtn{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer}
+  .copybtn:hover{background:#2f4a6b}
+  .copybtn.done{background:var(--ok)}
+  .steps{margin:0 0 18px;padding-left:20px;color:var(--muted);font-size:14.5px}
+  .steps li{margin-bottom:4px}
+
+  .q{padding:16px 0;border-top:1px solid var(--line)}
+  .q:first-of-type{border-top:none;padding-top:4px}
+  .prompt{margin:0 0 12px}
+  .num{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:8px;font-size:14px}
+  .gloss{color:var(--muted);font-size:13.5px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  button.opt{
+    font:inherit;font-size:15px;background:#fff;border:1.5px solid var(--line);
+    border-radius:9px;padding:9px 15px;cursor:pointer;transition:.15s;color:var(--ink);
+  }
+  button.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  button.opt:disabled{cursor:default;opacity:.55}
+  button.opt.picked-ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);font-weight:600;opacity:1}
+  button.opt.picked-no{background:var(--no-bg);border-color:var(--no);color:var(--no);font-weight:600;opacity:1}
+  button.opt.reveal{border-color:var(--ok);color:var(--ok);opacity:1}
+
+  input.gap{
+    font:inherit;font-size:15px;border:none;border-bottom:1.5px solid var(--accent);
+    background:transparent;padding:2px 6px;min-width:150px;color:var(--ink);
+  }
+  input.gap:focus{outline:none;background:var(--accent-soft)}
+  input.gap.ok{border-color:var(--ok);color:var(--ok);font-weight:600}
+  input.gap.no{border-color:var(--no);color:var(--no)}
+  .check{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;margin-left:10px}
+  .check:hover{background:#2f4a6b}
+
+  .fb{margin:11px 0 0;font-size:14.5px;padding:10px 13px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.ok{background:var(--ok-bg);color:var(--ok)}
+  .fb.no{background:var(--no-bg);color:var(--no)}
+  .fb b{font-weight:700}
+
+  .say{border-top:1px solid var(--line);padding:15px 0}
+  .say:first-of-type{border-top:none}
+  .say p{margin:0 0 9px}
+  .peek{font:inherit;font-size:13.5px;background:none;border:1px dashed var(--line);border-radius:7px;padding:5px 11px;cursor:pointer;color:var(--muted)}
+  .peek:hover{border-color:var(--accent);color:var(--accent)}
+  .answer{display:none;margin:9px 0 0;padding:10px 13px;background:var(--accent-soft);border-radius:8px;font-size:14.5px}
+  .answer.show{display:block}
+  .cue{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:15px 17px;margin:6px 0 12px}
+  .cue p{margin:0 0 6px}
+  .cue ul{margin:6px 0 0;padding-left:20px;color:var(--muted)}
+  .warnbox{background:var(--warn-bg);color:var(--warn);border-radius:9px;padding:12px 15px;font-size:14.5px;margin:0 0 18px}
+
+  #result{text-align:center;padding:34px 24px}
+  #result .score{font-size:44px;font-weight:700;letter-spacing:-.02em;margin:0}
+  #result .of{color:var(--muted);font-size:15px;margin:2px 0 16px}
+  #result .verdict{font-size:17px;margin:0 auto;max-width:480px}
+  .again{font:inherit;margin-top:22px;background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;font-size:15px}
+  .weak{margin-top:20px;font-size:14.5px;color:var(--muted);text-align:left;background:var(--bg);border-radius:9px;padding:14px 16px}
+  .weak b{color:var(--ink)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Money · деньги</h1>
+  <p class="sub">Две главы сразу: <i>Money</i> (Pre-Int/Int, unit 19) + <i>Money</i> (Upper-int, unit 40) · B2–C1 / IELTS · 35 минут</p>
+  <div class="progress-bar"><div class="progress-fill" id="pf"></div></div>
+</header>
+
+<section>
+  <h2>Как устроен этот документ</h2>
+  <p class="hint" style="margin-bottom:14px">Главы сведены по темам, а не подряд. Младший учебник даёт язык повседневных денег: наличные, счёт, зарплата, накопить, не по карману. Старший — язык банка и государства: овердрафт, ипотека, процентная ставка, налоги. Пересечений почти нет, вместе они закрывают тему целиком.</p>
+  <ol class="steps">
+    <li><b>Наличные, счёт, банк</b> — из чего состоит денежный обиход.</li>
+    <li><b>Доходы и расходы</b> — зарабатывать, тратить, копить, позволить себе.</li>
+    <li><b>Долги и кредиты</b> — самый обширный блок и самый нужный на IELTS.</li>
+    <li><b>Аренда и налоги</b> — то, где чаще всего ошибаются в словах.</li>
+  </ol>
+  <p class="hint" style="margin:0">Порядок прежний: таблица → «Скрыть английский» и второй проход вслух → упражнения → Chatty → разделы Speaking после разговора.</p>
+</section>
+
+<section>
+  <h2>Вокабуляр</h2>
+  <p class="hint">Обе главы плюс пять выражений уровня B2–C1 сверх учебников — они помечены <span class="b2tag">B2</span>. Наведите курсор на скрытую ячейку, чтобы подсмотреть одну строку.</p>
+  <div class="tbl-tools">
+    <button class="tool" id="tEn">Скрыть английский</button>
+    <button class="tool" id="tEx">Скрыть примеры</button>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Word</th><th>Перевод</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">A · Наличные, счёт, банк</td></tr>
+      <tr><td class="w">currency</td><td class="ru">валюта, тип денег в стране</td><td class="ex">In the UK the currency is sterling; in much of Europe it's the euro.</td></tr>
+      <tr><td class="w">sterling</td><td class="ru">фунт стерлингов как валюта</td><td class="ex">All prices on this website are given in sterling.</td></tr>
+      <tr><td class="w">a note · a coin</td><td class="ru">купюра · монета</td><td class="ex">a ten-pound note · a fifty-pence piece · a one-pound coin</td></tr>
+      <tr><td class="w">cash</td><td class="ru">наличные</td><td class="ex">I go to the cashpoint once a week, so I always have some cash with me.</td></tr>
+      <tr><td class="w">a cashpoint · a cash machine</td><td class="ru">банкомат</td><td class="ex">I only go to the bank occasionally, to use the cash machine.</td></tr>
+      <tr><td class="w">a current account</td><td class="ru">текущий счёт — для повседневных трат</td><td class="ex">A current account with the best interest rates and an overdraft facility.</td></tr>
+      <tr><td class="w">a savings account</td><td class="ru">накопительный счёт</td><td class="ex">I've just opened a savings account and I transfer money into it regularly.</td></tr>
+      <tr><td class="w">to be in credit</td><td class="ru">на счету положительная сумма</td><td class="ex">I make sure my account is always in credit.</td></tr>
+      <tr><td class="w">to check your account</td><td class="ru">проверять состояние счёта</td><td class="ex">I check my account online once a week to see how much money I've got.</td></tr>
+      <tr><td class="w">online banking</td><td class="ru">онлайн-банк</td><td class="ex">I use online banking most of the time.</td></tr>
+      <tr><td class="w">to transfer money</td><td class="ru">переводить деньги</td><td class="ex">I transfer money into my savings account at the end of every month.</td></tr>
+      <tr><td class="w">a direct debit</td><td class="ru">автоплатёж, списание по подписке</td><td class="ex">I pay all my bills by direct debit, so I don't have to worry about them.</td></tr>
+
+      <tr class="grp"><td colspan="3">B · Доходы и расходы</td></tr>
+      <tr><td class="w">to earn</td><td class="ru">зарабатывать</td><td class="ex">He's earning £300 a week in his job.</td></tr>
+      <tr><td class="w">income · a steady income</td><td class="ru">доход · стабильный доход</td><td class="ex">I have a steady income now, which is great, and my outgoings are quite low.</td></tr>
+      <tr><td class="w">outgoings</td><td class="ru">регулярные ежемесячные траты</td><td class="ex">Rent and the cost of running a car are my biggest outgoings.</td></tr>
+      <tr><td class="w">expenses</td><td class="ru">расходы, траты</td><td class="ex">I don't have any major expenses at the moment.</td></tr>
+      <tr><td class="w">to spend ↔ to waste money</td><td class="ru">тратить ↔ тратить впустую</td><td class="ex">She spent a fortune on that course and then wasted it — she never went.</td></tr>
+      <tr><td class="w">to afford</td><td class="ru">позволить себе (по деньгам)</td><td class="ex">I'd love to have a car as well, but I can't afford it.</td></tr>
+      <tr><td class="w">to save up (for)</td><td class="ru">копить на что-л.</td><td class="ex">At the moment I'm saving up for a new laptop.</td></tr>
+      <tr><td class="w">a reasonable amount</td><td class="ru">приличная сумма, немало</td><td class="ex">I'll pay it back once I'm earning a reasonable amount.</td></tr>
+      <tr><td class="w">good value for money</td><td class="ru">выгодно за свои деньги</td><td class="ex">It's a nice place and quite good value for money.</td></tr>
+      <tr><td class="w">to charge</td><td class="ru">брать плату, выставлять счёт</td><td class="ex">The landlord isn't charging us to use his garage.</td></tr>
+      <tr><td class="w">a fee</td><td class="ru">плата за услугу или обучение</td><td class="ex">I had to get a student loan to pay my fees.</td></tr>
+
+      <tr class="grp"><td colspan="3">C · Долги и кредиты</td></tr>
+      <tr><td class="w">to borrow ↔ to lend</td><td class="ru">взять в долг ↔ дать в долг</td><td class="ex">I borrowed £50 from Tom. = Tom lent me £50.</td></tr>
+      <tr><td class="w">to owe /əʊ/</td><td class="ru">быть должным</td><td class="ex">That means I now owe them £1,200.</td></tr>
+      <tr><td class="w">to pay back</td><td class="ru">вернуть долг</td><td class="ex">I don't have to pay it back until I get a job.</td></tr>
+      <tr><td class="w">a debt /det/</td><td class="ru">долг <span style="font-weight:400">(«b» не читается)</span></td><td class="ex">Nico has debts totalling 15,000 euros.</td></tr>
+      <tr><td class="w">a loan · a student loan</td><td class="ru">кредит · студенческий заём</td><td class="ex">I had to get a student loan to pay my fees.</td></tr>
+      <tr><td class="w">a mortgage /ˈmɔːɡɪdʒ/</td><td class="ru">ипотека <span style="font-weight:400">(«t» не читается)</span></td><td class="ex">Mortgages with low deposits and flexible repayments.</td></tr>
+      <tr><td class="w">a deposit</td><td class="ru">залог или первый взнос</td><td class="ex">We paid one month's rent as a deposit. / She paid a deposit of £500 on the car.</td></tr>
+      <tr><td class="w">repayments</td><td class="ru">выплаты по кредиту</td><td class="ex">The bank offers mortgages with repayments over thirty years.</td></tr>
+      <tr><td class="w">a credit limit</td><td class="ru">кредитный лимит по карте</td><td class="ex">Discuss your credit limit with us today.</td></tr>
+      <tr><td class="w">an overdraft · overdrawn</td><td class="ru">овердрафт · в минусе по счёту</td><td class="ex">By the end of the month my account is always overdrawn.</td></tr>
+      <tr><td class="w">to be in the red</td><td class="ru">быть в минусе <span style="font-weight:400">(разг.)</span></td><td class="ex">I hate being in the red, and the banks all charge interest on overdrafts.</td></tr>
+      <tr><td class="w">interest · an interest rate</td><td class="ru">проценты · процентная ставка</td><td class="ex">The bank charges interest on overdrafts. Their interest rates are quite high.</td></tr>
+      <tr><td class="w">competitive (rates)</td><td class="ru">не хуже, чем у других</td><td class="ex">A loan with competitive interest rates.</td></tr>
+      <tr><td class="w">a credit rating</td><td class="ru">кредитная история</td><td class="ex">Paying by direct debit means I have a good credit rating.</td></tr>
+      <tr><td class="w">to raise money · to finance sth</td><td class="ru">собрать деньги · профинансировать</td><td class="ex">He was trying to raise money to finance his trip to Africa.</td></tr>
+      <tr><td class="w">to consolidate debts</td><td class="ru">объединить долги в один платёж</td><td class="ex">Consolidate all your cards and debts into one convenient payment.</td></tr>
+
+      <tr class="grp"><td colspan="3">D · Аренда</td></tr>
+      <tr><td class="w">to rent ↔ to hire</td><td class="ru">снимать надолго ↔ брать на короткий срок</td><td class="ex">We rent a flat with three friends. / I hired a bike for the day.</td></tr>
+      <tr><td class="w">rent <span style="font-weight:400;color:#6b6862">(сущ.)</span></td><td class="ru">арендная плата</td><td class="ex">The rent is £400 per month.</td></tr>
+      <tr><td class="w">a landlord</td><td class="ru">арендодатель, владелец жилья</td><td class="ex">The landlord isn't charging us to use his garage.</td></tr>
+
+      <tr class="grp"><td colspan="3">E · Налоги</td></tr>
+      <tr><td class="w">income tax</td><td class="ru">подоходный налог</td><td class="ex">Income tax is the tax collected on wages and salaries.</td></tr>
+      <tr><td class="w">inheritance tax</td><td class="ru">налог на наследство</td><td class="ex">Inheritance tax is collected on money people get from people who have died.</td></tr>
+      <tr><td class="w">customs (excise) duty · duty-free</td><td class="ru">таможенная пошлина · беспошлинный</td><td class="ex">Customs duty is paid on goods imported from other countries; airports have duty-free shops.</td></tr>
+      <tr><td class="w">VAT (value added tax)</td><td class="ru">НДС</td><td class="ex">VAT is a tax paid on most goods and services.</td></tr>
+      <tr><td class="w">corporation tax</td><td class="ru">налог на прибыль компаний</td><td class="ex">Companies pay corporation tax on their profits.</td></tr>
+
+      <tr class="grp"><td colspan="3">F · Пять выражений сверх учебников</td></tr>
+      <tr><td class="w">to be on a tight budget <span class="b2tag">B2</span></td><td class="ru">жить в жёстких рамках бюджета</td><td class="ex">We're on a very tight budget this month, so no restaurants.</td></tr>
+      <tr><td class="w">to make ends meet <span class="b2tag">B2</span></td><td class="ru">сводить концы с концами</td><td class="ex">With rents that high, a lot of families struggle to make ends meet.</td></tr>
+      <tr><td class="w">disposable income <span class="b2tag">B2</span></td><td class="ru">свободные деньги после обязательных трат</td><td class="ex">Young people here have far less disposable income than their parents did.</td></tr>
+      <tr><td class="w">to splash out (on sth) <span class="b2tag">B2</span></td><td class="ru">потратиться, позволить себе лишнее</td><td class="ex">We decided to splash out on a really good coffee machine.</td></tr>
+      <tr><td class="w">well off ↔ hard up <span class="b2tag">B2</span></td><td class="ru">обеспеченный ↔ стеснённый в деньгах</td><td class="ex">Her family is quite well off, but she's always hard up herself.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Для Chatty</h2>
+  <p class="hint">Промт первым сообщением, слова вторым. Тема денег на экзамене почти всегда выходит на общество: наличные и карты, кредиты, неравенство.</p>
+
+  <div class="box">
+    <h3>1 · Промт</h3>
+    <div class="copyable" id="promptText">You are my speaking partner. I'm B2 moving towards C1, preparing for IELTS Speaking. Topic: MONEY AND PERSONAL FINANCE.
+
+1. Your turns: 2-3 sentences, always ending with a question. I do 80% of the talking.
+2. Use my word list (next message). Put 1-2 of those words into every turn of yours, and steer me into using them too.
+3. Move through these stages, about 3 exchanges each: how I handle money day to day - whether I am a saver or a spender - something I once saved up for or splashed out on - how people pay for things in my country and whether cash is disappearing - attitudes to debt and whether money should be taught at school.
+4. From stage 4 onwards, ask IELTS Part 3 questions: abstract, about society, not about me personally.
+5. Never ask about my actual income or amounts. Keep it general - I should be able to answer without revealing anything private.
+6. End each turn with one short line "Better: ..." - one grammar fix, or a stronger word from the list I should have used. One line only.
+7. After 15 exchanges: tell me which words I used and which I didn't, then ask me to make a sentence with each unused one.
+
+Start by asking whether I prefer paying by card or in cash.</div>
+    <button class="copybtn" data-src="promptText">Скопировать промт</button>
+  </div>
+
+  <div class="box">
+    <h3>2 · Слова</h3>
+    <div class="copyable" id="wordsText">Here is my word list for today: currency, cash, a note, a coin, a cashpoint, a current account, a savings account, to be in credit, to transfer money, a direct debit, online banking, to earn, a steady income, outgoings, expenses, to spend, to waste money, to afford, to save up for, good value for money, to charge, a fee, to borrow, to lend, to owe, to pay back, a debt, a loan, a mortgage, a deposit, repayments, a credit limit, an overdraft, overdrawn, to be in the red, interest, an interest rate, competitive rates, a credit rating, to raise money, to finance something, to rent, to hire, rent, a landlord, income tax, VAT, duty-free, corporation tax, to be on a tight budget, to make ends meet, disposable income, to splash out on something, well off, hard up.</div>
+    <button class="copybtn" data-src="wordsText">Скопировать слова</button>
+  </div>
+</section>
+
+<section>
+  <h2>1 · Кто кому должен</h2>
+  <p class="hint">Четыре глагола, которые путают чаще всех остальных слов темы вместе взятых.</p>
+  <div id="ex1"></div>
+</section>
+
+<section>
+  <h2>2 · Оттенки: что чем отличается</h2>
+  <p class="hint">Главный раздел. Здесь русский перевод почти не помогает: «залог», «плата» и «взнос» по-английски — разные слова, и выбор зависит от ситуации.</p>
+  <div id="ex2"></div>
+</section>
+
+<section>
+  <h2>3 · Определения (19.2)</h2>
+  <p class="hint">Впишите слово с артиклем, если он нужен. Enter — проверить.</p>
+  <div id="ex3"></div>
+</section>
+
+<section>
+  <h2>4 · Скажите иначе (19.3)</h2>
+  <p class="hint">Замените обычную фразу словом из главы — так проверяется, стало ли слово активным.</p>
+  <div id="ex4"></div>
+</section>
+
+<section>
+  <h2>5 · Банковские термины (40.1)</h2>
+  <p class="hint">Определение — выберите термин.</p>
+  <div id="ex5"></div>
+</section>
+
+<section>
+  <h2>6 · Реклама банка (40.2)</h2>
+  <p class="hint">Впишите слово из блока про кредиты.</p>
+  <div id="ex6"></div>
+</section>
+
+<section>
+  <h2>7 · Налоги</h2>
+  <p class="hint">Как называется налог? Впишите название.</p>
+  <div id="ex7"></div>
+</section>
+
+<section>
+  <h2>8 · Ловушки</h2>
+  <div class="warnbox"><b>Пять ошибок, которые делают почти все.</b> <i>Money</i> неисчисляемо; <i>afford</i> живёт только с <i>can / can't</i>; <i>borrow</i> и <i>lend</i> смотрят в разные стороны; платят <i>for</i> покупку; квартиру <i>rent</i>, а велосипед <i>hire</i>.</div>
+  <div id="ex8"></div>
+</section>
+
+<section>
+  <h2>9 · Слова сверх учебников</h2>
+  <p class="hint">Впишите выражение из блока F.</p>
+  <div id="ex9"></div>
+</section>
+
+<section>
+  <h2>10 · Скажите вслух · IELTS Part 1</h2>
+  <p class="hint">Два-три предложения на вопрос. Сначала свой ответ вслух, потом подсматривайте.</p>
+  <div id="ex10"></div>
+</section>
+
+<section>
+  <h2>11 · IELTS Part 2</h2>
+  <p class="hint">Минута на подготовку, две минуты говорить. Запишите себя и посчитайте слова из таблицы.</p>
+  <div class="cue">
+    <p><b>Describe something expensive that you saved up for.</b></p>
+    <p>You should say:</p>
+    <ul>
+      <li>what it was and when you bought it</li>
+      <li>how long you saved for it</li>
+      <li>how you managed to save the money</li>
+      <li>and explain whether it was worth it.</li>
+    </ul>
+  </div>
+  <div id="ex11"></div>
+</section>
+
+<section>
+  <h2>12 · IELTS Part 3 · рассуждение</h2>
+  <p class="hint">Схема прежняя: позиция → причина → пример → уступка. И помните: на экзамене никто не спрашивает о ваших настоящих доходах — говорите об обществе вообще.</p>
+  <div id="ex12"></div>
+</section>
+
+<section id="result" style="display:none">
+  <p class="score" id="score">0</p>
+  <p class="of">из <span id="total">0</span> — <span id="pct">0</span>%</p>
+  <p class="verdict" id="verdict"></p>
+  <div class="weak" id="weak" style="display:none"></div>
+  <button class="again" onclick="location.reload()">Пройти заново</button>
+</section>
+
+<footer>Redman, <i>EVIU Pre-intermediate and Intermediate</i>, Unit 19 Money · McCarthy &amp; O'Dell, <i>EVIU Upper-intermediate</i>, Unit 40 Money · CUP</footer>
+</div>
+
+<script>
+/* ============ 1 · BORROW / LEND / OWE ============ */
+const EX1 = [
+  {p:"Can you ___ me twenty pounds until Friday?", o:["lend","borrow","owe"], a:0,
+   f:"<b>lend</b> — дать в долг. Схема: <i>lend somebody something</i>, дающий стоит подлежащим."},
+  {p:"I ___ twenty pounds from my brother last week.", o:["lent","borrowed","owed"], a:1,
+   f:"<b>borrow</b> — взять в долг, и всегда <i>from</i> somebody. Берущий стоит подлежащим."},
+  {p:"I still ___ him twenty pounds.", o:["borrow","lend","owe"], a:2,
+   f:"<b>owe</b> — быть должным: <i>owe somebody something</i>. Читается /əʊ/, «оу»."},
+  {p:"Don't worry, I'll ___ on Friday.", o:["pay you back","return you","give you the money back"], a:0,
+   f:"<b>pay you back</b> — вернуть долг. Глагол <i>return</i> о деньгах не употребляют."},
+  {p:"The bank ___ me the money for the car.", o:["borrowed","lent","owed"], a:1,
+   f:"<b>lent</b> — банк даёт, вы берёте. Ошибка «the bank borrowed me» — самая частая в теме."},
+  {p:"He has ___ of over fifteen thousand euros.", o:["owes","debts","loans"], a:1,
+   f:"<b>debts</b> — существительное. Произносится /dets/, буква «b» немая."}
+];
+
+/* ============ 2 · ОТТЕНКИ ============ */
+const EX2 = [
+  {p:"Снять квартиру на год.", o:["to rent a flat","to hire a flat"], a:0,
+   f:"<b>rent</b> — надолго: жильё, помещение. <i>Hire</i> — на короткий срок."},
+  {p:"Взять велосипед на один день.", o:["to rent a bike","to hire a bike"], a:1,
+   f:"<b>hire</b> — на день, на час. С машиной верны оба варианта: <i>we rented / hired a car</i>."},
+  {p:"Деньги, которые вы платите юристу или университету за услугу.", o:["a fee","rent","a charge"], a:0,
+   f:"<b>a fee</b> — плата за услугу или обучение: <i>a lawyer's fee, university fees</i>."},
+  {p:"Сумма, которую вносят заранее и потом получают обратно.", o:["a deposit","a fee","a debt"], a:0,
+   f:"<b>a deposit</b>. У слова два применения: залог за аренду (вернут) и первый взнос за покупку (не вернут)."},
+  {p:"Счёт, с которого вы платите каждый день.", o:["a current account","a savings account"], a:0,
+   f:"<b>a current account</b> — повседневный. <i>Savings account</i> — куда откладывают то, что не нужно сейчас."},
+  {p:"На счету положительная сумма, всё в порядке.", o:["in credit","overdrawn","in the red"], a:0,
+   f:"<b>in credit.</b> Противоположное — <i>overdrawn</i> или, разговорно, <i>in the red</i>."},
+  {p:"К концу месяца на счету минус.", o:["in credit","overdrawn","competitive"], a:1,
+   f:"<b>overdrawn</b> — официальное слово. В разговоре: <i>I'm in the red again.</i>"},
+  {p:"Кредит, который берут именно на покупку жилья.", o:["a loan","a mortgage","an overdraft"], a:1,
+   f:"<b>a mortgage</b> /ˈmɔːɡɪdʒ/ — «морґидж», буква «t» не читается."},
+  {p:"Разрешение банка уходить в минус по счёту.", o:["an overdraft","a credit limit","a deposit"], a:0,
+   f:"<b>an overdraft</b> (полностью — <i>an overdraft facility</i>). Банк за это берёт проценты."},
+  {p:"Максимальная сумма, которую можно потратить с карты.", o:["an overdraft","a credit limit","a credit rating"], a:1,
+   f:"<b>a credit limit.</b> Не путать с <i>credit rating</i> — это ваша кредитная история."},
+  {p:"Деньги, которые приходят регулярно и примерно одинаково.", o:["outgoings","a steady income","expenses"], a:1,
+   f:"<b>a steady income.</b> <i>Outgoings</i> — то, что уходит каждый месяц; <i>expenses</i> — траты вообще."},
+  {p:"Ставки по кредиту у нас не хуже, чем у других банков.", o:["reasonable","competitive","steady"], a:1,
+   f:"<b>competitive</b> — «конкурентоспособные», то есть не хуже рынка. Готовое слово из банковской рекламы."},
+  {p:"Потратил деньги на курс и ни разу на него не пришёл.", o:["spent","wasted","saved"], a:1,
+   f:"<b>wasted.</b> <i>Spend</i> нейтрально — просто потратил; <i>waste</i> — потратил зря."},
+  {p:"Получать деньги за свою работу.", o:["to earn money","to win money","to gain money"], a:0,
+   f:"<b>earn</b> — зарабатывать трудом. <i>Win</i> — выиграть в лотерею; смешивать их нельзя."}
+];
+
+/* ============ 3 · ОПРЕДЕЛЕНИЯ (19.2) ============ */
+const EX3 = [
+  {pre:"A flat, usually round piece of metal used as money →", post:"", a:["a coin","coin"],
+   f:"<b>a coin.</b> Внимание к сочетанию: <i>a fifty-pence piece</i>, но <i>a one-pound coin</i>."},
+  {pre:"Money you borrow from a bank →", post:"", a:["a loan","loan"],
+   f:"<b>a loan.</b> Глагол к нему — <i>take out a loan</i>."},
+  {pre:"Money you pay for a professional service or for studying →", post:"", a:["a fee","fee","fees"],
+   f:"<b>a fee</b>, чаще во множественном: <i>university fees</i>."},
+  {pre:"Money in the form of notes or coins →", post:"", a:["cash"],
+   f:"<b>cash</b> — без артикля, неисчисляемое."},
+  {pre:"Money you pay to live in a building you don't own →", post:"", a:["rent"],
+   f:"<b>rent</b> — и существительное, и глагол."},
+  {pre:"A machine in the wall where you can get money →", post:"", a:["a cashpoint","cashpoint","a cash machine","cash machine","an atm"],
+   f:"<b>a cashpoint</b> или <b>a cash machine</b>. В США — <i>an ATM</i>."},
+  {pre:"The type of money used in a country →", post:"", a:["currency","a currency"],
+   f:"<b>currency.</b>"}
+];
+
+/* ============ 4 · СКАЖИТЕ ИНАЧЕ (19.3) ============ */
+const EX4 = [
+  {pre:"He's getting £300 a week in his job. → He's", post:"£300 a week.", a:["earning"],
+   f:"<b>earning</b> — зарабатывает."},
+  {pre:"She used the money badly. → She", post:"the money.", a:["wasted"],
+   f:"<b>wasted</b> — потратила впустую."},
+  {pre:"I don't have enough money to go. → I can't", post:"it.", a:["afford"],
+   f:"<b>afford</b> — и обязательно с дополнением: <i>can't afford it</i>."},
+  {pre:"He asked us to pay £25. → He", post:"us £25.", a:["charged"],
+   f:"<b>charged</b> — взял с нас плату."},
+  {pre:"I've got to pay back a lot of money. → I", post:"a lot of money.", a:["owe"],
+   f:"<b>owe</b> — должен."},
+  {pre:"I always look at my account carefully. → I always", post:"my account carefully.", a:["check"],
+   f:"<b>check</b> — проверяю."}
+];
+
+/* ============ 5 · БАНК (40.1) ============ */
+const EX5 = [
+  {p:"Money that is charged on a loan.", o:["interest","a deposit","a fee"], a:0,
+   f:"<b>interest</b> — проценты. Неисчисляемое: <i>interest</i>, не <s>interests</s>."},
+  {p:"A loan usually used to buy a house or flat.", o:["an overdraft","a mortgage","a credit limit"], a:1,
+   f:"<b>a mortgage.</b>"},
+  {p:"An account with a negative sum of money in it.", o:["a savings account","an overdraft","a direct debit"], a:1,
+   f:"<b>an overdraft.</b> О человеке в такой ситуации говорят <i>overdrawn</i>."},
+  {p:"An account for money you don't need immediately.", o:["a savings account","a current account"], a:0,
+   f:"<b>a savings account.</b>"},
+  {p:"An account for day-to-day use.", o:["a savings account","a current account"], a:1,
+   f:"<b>a current account.</b> В США — <i>a checking account</i>."},
+  {p:"A payment taken automatically from an account.", o:["a direct debit","a repayment","a transfer"], a:0,
+   f:"<b>a direct debit</b> — автоплатёж: коммуналка, подписки, ипотека."}
+];
+
+/* ============ 6 · РЕКЛАМА БАНКА (40.2) ============ */
+const EX6 = [
+  {pre:"Misha spent 6,000 euros on her card and the bank said that was 1,000 too much. Her credit", post:"was 5,000 euros.", a:["limit"],
+   f:"<b>credit limit</b> — потолок трат по карте."},
+  {pre:"Our rates are as good as other banks' and sometimes better — they are", post:".", a:["competitive"],
+   f:"<b>competitive.</b>"},
+  {pre:"Before she took the car, Alice paid £500 to the dealer. She paid a", post:"of £500.", a:["deposit"],
+   f:"<b>a deposit</b> — первый взнос, подтверждающий намерение купить."},
+  {pre:"If customers need more money than is in their account, the bank offers an overdraft", post:".", a:["facility"],
+   f:"<b>an overdraft facility</b> — сама возможность уходить в минус."},
+  {pre:"He sold his car and took a second job — he was trying to", post:"money to finance his trip.", a:["raise"],
+   f:"<b>raise money</b> — собрать нужную сумму. Дальше идёт <i>to finance</i> — на что именно."},
+  {pre:"You only need one card. You can", post:"all the sums you owe into one payment.", a:["consolidate","combine"],
+   f:"<b>consolidate</b> — свести несколько долгов в один."}
+];
+
+/* ============ 7 · НАЛОГИ ============ */
+const EX7 = [
+  {pre:"Tax paid on wages and salaries →", post:"tax", a:["income"],
+   f:"<b>income tax.</b>"},
+  {pre:"Tax paid on money you get from someone who has died →", post:"tax", a:["inheritance"],
+   f:"<b>inheritance tax.</b>"},
+  {pre:"Tax companies pay on their profits →", post:"tax", a:["corporation"],
+   f:"<b>corporation tax.</b>"},
+  {pre:"Tax paid on most goods and services, three letters →", post:"", a:["vat","value added tax"],
+   f:"<b>VAT</b> — value added tax, наш НДС."},
+  {pre:"The shop at the airport where there is no tax is a", post:"shop.", a:["duty-free","duty free"],
+   f:"<b>duty-free.</b> Сам налог на ввоз — <i>customs duty</i> или <i>excise duty</i>."}
+];
+
+/* ============ 8 · ЛОВУШКИ ============ */
+const EX8 = [
+  {p:"Что верно?", o:["I want a new phone but I don't afford it.","I want a new phone but I can't afford it.","Оба верны"], a:1,
+   f:"<b>afford</b> почти всегда с <i>can / can't</i> и обязательно с дополнением. <s>I don't afford</s> невозможно."},
+  {p:"Что верно?", o:["My brother borrowed me £50.","My brother lent me £50.","Оба верны"], a:1,
+   f:"Дающий — <b>lend</b>, берущий — <b>borrow</b>. Ошибка обратного направления встречается постоянно."},
+  {p:"Что верно?", o:["How much money do you need?","How many moneys do you need?","Оба верны"], a:0,
+   f:"<b>money</b> неисчисляемо: <i>much money</i>, <i>a lot of money</i>, но никогда <s>moneys</s>."},
+  {p:"Что верно?", o:["I paid the tickets.","I paid for the tickets.","Оба верны"], a:1,
+   f:"Платят <b>for</b> покупку. Без <i>for</i> — только когда платят человеку или счёт: <i>I paid the driver / the bill</i>."},
+  {p:"Что верно?", o:["We hired a flat for a year.","We rented a flat for a year.","Оба верны"], a:1,
+   f:"Жильё на год — только <b>rent</b>. <i>Hire</i> подошло бы для велосипеда на день."}
+];
+
+/* ============ 9 · СВЕРХ УЧЕБНИКОВ ============ */
+const EX9 = [
+  {pre:"We're on a very tight", post:"this month, so we're not eating out at all.", a:["budget"],
+   f:"<b>on a tight budget</b> — предлог <i>on</i> обязателен."},
+  {pre:"With rents this high, a lot of families struggle to make ends", post:".", a:["meet"],
+   f:"<b>to make ends meet</b> — сводить концы с концами. Готовая фраза, менять слова внутри нельзя."},
+  {pre:"Young people here have far less", post:"income than their parents did at the same age.", a:["disposable"],
+   f:"<b>disposable income</b> — то, что остаётся после обязательных трат. Термин для Part 3."},
+  {pre:"We decided to splash", post:"on a really good coffee machine.", a:["out"],
+   f:"<b>to splash out on sth</b> — потратиться на что-то приятное."},
+  {pre:"Her family is quite well", post:", but she's always hard up herself.", a:["off"],
+   f:"<b>well off</b> — обеспеченный, ↔ <i>hard up</i> — на мели."}
+];
+
+/* ============ 10 · PART 1 ============ */
+const EX10 = [
+  {q:"Do you prefer to pay by card or in cash?",
+   a:"By card, almost always. I hardly ever carry cash now — I can't remember the last time I went to a cashpoint, and I like being able to check my account and see exactly where the money went."},
+  {q:"Are you good at saving money?",
+   a:"Reasonably. I transfer a fixed sum into a savings account at the start of each month, so I never see it as spendable. If I waited until the end of the month there'd be nothing left."},
+  {q:"Do young people in your country worry about money?",
+   a:"A great deal, I'd say. Rents have gone up much faster than wages, so a lot of people my age are on a tight budget even with a steady income."},
+  {q:"Have you ever saved up for something for a long time?",
+   a:"I saved for about a year for a decent laptop. It felt like an enormous amount at the time, but it's lasted five years, so it turned out to be very good value for money."},
+  {q:"Do you think children should be given pocket money?",
+   a:"Definitely — mainly because it's the only way they learn that money runs out. If you never have to decide between two things you want, you don't develop any sense of what things cost."},
+  {q:"Is it better to rent or to buy a home in your country?",
+   a:"That depends on where you live. In the capital deposits are so high that most people rent for years, whereas in smaller towns a mortgage can cost less per month than the rent."}
+];
+
+/* ============ 11 · PART 2 ============ */
+const EX11 = [
+  {q:"Разберите карточку по плану, затем сравните с образцом — в нём шестнадцать слов из таблицы.",
+   a:"I'd like to talk about the first proper camera I bought, about six years ago. It cost close to a thousand euros, which for me at the time was an enormous sum — I was a student, living on a student loan and whatever I earned from two evenings a week in a café. I saved up for nearly a year. What made it possible was setting up a direct debit: forty euros went into a savings account the day I got paid, before I could think about it. I also cut my outgoings quite hard — I stopped taking taxis and cooked at home almost every day. I remember checking my account obsessively and being genuinely proud that it never went into the red. Was it worth it? Absolutely. I still use that camera, so per year it has turned out to be extremely good value for money. But honestly, the bigger lesson was the saving itself: I learnt that I could afford almost anything if I was willing to wait for it. Having said that, I wouldn't want to be that hard up again."}
+];
+
+/* ============ 12 · PART 3 ============ */
+const EX12 = [
+  {q:"Is cash likely to disappear completely?",
+   a:"In most developed countries, very nearly. Almost everything can be paid for by card or phone now, and shops prefer it. Though of course cash matters for people without bank accounts, and for anyone who wants their spending to stay private — so I'd expect it to survive as a minority option rather than vanish."},
+  {q:"Should personal finance be taught in schools?",
+   a:"I think so, yes. People leave school knowing how to solve equations but not how interest on a loan actually works, and that's the knowledge they'll need within a year or two. The obvious drawback is that the curriculum is already full — but you could teach it inside maths rather than adding another subject."},
+  {q:"Why do some people get into serious debt?",
+   a:"Partly because credit is deliberately made easy: card limits are raised without anyone asking, and repayments are presented as small monthly numbers rather than a total. And partly because wages haven't kept up with the cost of living, so people borrow to cover ordinary expenses rather than luxuries. It's rarely simple recklessness."},
+  {q:"Does having more money make people happier?",
+   a:"Up to a point, clearly — being hard up is genuinely stressful, and money removes that. Beyond a certain level, though, the evidence suggests it adds surprisingly little. What seems to matter more is security: knowing you could handle an unexpected bill without going into the red."},
+  {q:"Should governments tax the rich more heavily?",
+   a:"Broadly, I'd support it — public services have to be financed somehow, and income tax on higher earners is the least painful place to find it. Then again, set the rates too high and money simply moves abroad, so it works both ways. It's a balance rather than a principle."}
+];
+
+/* ============ ДВИЖОК ============ */
+let answered = 0, correct = 0;
+const TOTAL = EX1.length + EX2.length + EX3.length + EX4.length + EX5.length + EX6.length + EX7.length + EX8.length + EX9.length;
+const missed = [];
+document.getElementById('total').textContent = TOTAL;
+
+function bump(ok, label){
+  answered++; if(ok) correct++; else if(label) missed.push(label);
+  document.getElementById('pf').style.width = (answered/TOTAL*100) + '%';
+  if(answered === TOTAL) finish();
+}
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;£$]/g,'').replace(/\s+/g,' ');
+}
+
+function buildChoice(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    q.innerHTML = `<p class="prompt"><span class="num">${i+1}</span>${item.p}</p>`;
+    const box = document.createElement('div'); box.className = 'opts';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    item.o.forEach((opt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'opt'; b.innerHTML = opt;
+      b.onclick = () => {
+        const ok = oi === item.a;
+        [...box.children].forEach((c,ci) => {
+          c.disabled = true;
+          if(ci === item.a && !ok) c.classList.add('reveal');
+        });
+        b.classList.add(ok ? 'picked-ok' : 'picked-no');
+        fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '✓ ' : '✗ ') + item.f;
+        bump(ok, ok ? null : item.o[item.a].replace(/<[^>]+>/g,''));
+      };
+      box.appendChild(b);
+    });
+    q.appendChild(box); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildChoice(document.getElementById('ex1'), EX1);
+buildChoice(document.getElementById('ex2'), EX2);
+buildChoice(document.getElementById('ex5'), EX5);
+buildChoice(document.getElementById('ex8'), EX8);
+
+function buildGap(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    const p = document.createElement('p'); p.className = 'prompt';
+    p.innerHTML = `<span class="num">${i+1}</span>${item.pre} `;
+    const inp = document.createElement('input');
+    inp.className = 'gap'; inp.type = 'text'; inp.placeholder = '…';
+    inp.setAttribute('autocomplete','off'); inp.setAttribute('autocapitalize','off');
+    inp.setAttribute('spellcheck','false');
+    const tail = document.createElement('span'); tail.innerHTML = ' ' + item.post;
+    const btn = document.createElement('button'); btn.className = 'check'; btn.textContent = 'Проверить';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    const go = () => {
+      if(inp.disabled) return;
+      const ok = item.a.some(x => norm(x) === norm(inp.value));
+      inp.disabled = true; btn.style.display = 'none';
+      inp.classList.add(ok ? 'ok' : 'no');
+      fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = ok
+        ? '✓ ' + (item.f || 'Верно.')
+        : '✗ Ответ: <b>' + item.a[0] + '</b>' + (item.f ? ' — ' + item.f : '');
+      bump(ok, ok ? null : item.a[0]);
+    };
+    btn.onclick = go;
+    inp.onkeydown = e => { if(e.key === 'Enter') go(); };
+    p.appendChild(inp); p.appendChild(tail); p.appendChild(btn);
+    q.appendChild(p); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildGap(document.getElementById('ex3'), EX3);
+buildGap(document.getElementById('ex4'), EX4);
+buildGap(document.getElementById('ex6'), EX6);
+buildGap(document.getElementById('ex7'), EX7);
+buildGap(document.getElementById('ex9'), EX9);
+
+function buildSay(hostId, data, btnLabel){
+  const host = document.getElementById(hostId);
+  data.forEach((item, i) => {
+    const d = document.createElement('div'); d.className = 'say';
+    d.innerHTML = `<p>${data.length > 1 ? '<span class="num">'+(i+1)+'</span>' : ''}${item.q}</p>`;
+    const b = document.createElement('button'); b.className = 'peek'; b.textContent = btnLabel;
+    const a = document.createElement('p'); a.className = 'answer'; a.innerHTML = item.a;
+    b.onclick = () => { a.classList.add('show'); b.style.display = 'none'; };
+    d.appendChild(b); d.appendChild(a); host.appendChild(d);
+  });
+}
+buildSay('ex10', EX10, 'Показать вариант');
+buildSay('ex11', EX11, 'Показать образец ответа');
+buildSay('ex12', EX12, 'Показать вариант');
+
+document.getElementById('tEn').onclick = function(){
+  document.body.classList.toggle('hiden');
+  const on = document.body.classList.contains('hiden');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать английский' : 'Скрыть английский';
+};
+document.getElementById('tEx').onclick = function(){
+  document.body.classList.toggle('hidex');
+  const on = document.body.classList.contains('hidex');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать примеры' : 'Скрыть примеры';
+};
+
+document.querySelectorAll('.copybtn').forEach(btn => {
+  const original = btn.textContent;
+  btn.onclick = () => {
+    const text = document.getElementById(btn.dataset.src).innerText;
+    const done = () => {
+      btn.textContent = '✓ Скопировано'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+    } else fallback(text, done);
+  };
+});
+function fallback(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Скопируйте текст вручную.'); }
+  document.body.removeChild(ta);
+}
+
+function finish(){
+  const pct = Math.round(correct / TOTAL * 100);
+  document.getElementById('score').textContent = correct;
+  document.getElementById('pct').textContent = pct;
+  let v;
+  if(pct >= 90) v = "Обе главы закрыты. Идите в Chatty и доведите разговор до Part 3 — про наличные, долги и финансовую грамотность.";
+  else if(pct >= 75) v = "Хорошо. Перечитайте разборы там, где ошиблись, и всё равно идите говорить: банковская лексика встаёт на место в разговоре быстрее, чем в упражнениях.";
+  else if(pct >= 50) v = "Слов много, они ещё не улеглись. Пройдите заново разделы «Кто кому должен» и «Оттенки», а разговор перенесите на завтра.";
+  else v = "Рано: две главы за раз — большой объём. Вернитесь к таблице и пройдите её вслух по одному блоку в день.";
+  document.getElementById('verdict').textContent = v;
+  if(missed.length){
+    const uniq = [...new Set(missed)];
+    document.getElementById('weak').innerHTML =
+      '<b>Забрать в Chatty:</b> ' + uniq.join(' · ') + '<br><br>Скажите ИИ: «Please make sure I use these words today: ' + uniq.join(', ') + '.»';
+    document.getElementById('weak').style.display = 'block';
+  }
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.scrollIntoView({behavior:'smooth', block:'center'});
+}
+</script>
+</body>
+</html>
