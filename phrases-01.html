@@ -47,15 +47,12 @@
   body.hiden td.w, body.hiden td.w *,
   body.hiden td.ex, body.hiden td.ex *{color:transparent !important}
   body.hiden td.ex .src{background:transparent !important}
-  body.hiden td.w:hover, body.hiden td.ex:hover,
-  body.hiden td.w.peeked, body.hiden td.ex.peeked{background:transparent}
-  body.hiden td.w:hover,
+  body.hiden td.w.peeked,
+  body.hiden td.ex.peeked{background:transparent}
   body.hiden td.w.peeked{color:var(--ink) !important}
-  body.hiden td.w:hover *,
   body.hiden td.w.peeked *{color:var(--muted) !important}
-  body.hiden td.ex:hover, body.hiden td.ex:hover *,
-  body.hiden td.ex.peeked, body.hiden td.ex.peeked *{color:#3a3833 !important}
-  body.hiden td.ex:hover .src,
+  body.hiden td.ex.peeked,
+  body.hiden td.ex.peeked *{color:#3a3833 !important}
   body.hiden td.ex.peeked .src{background:var(--tag-bg) !important;color:var(--tag) !important}
 
   .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
@@ -67,6 +64,20 @@
   footer{text-align:center;color:var(--muted);font-size:13px;margin-top:26px}
 
   body.hiden td.w, body.hiden td.ex, body.hidex td.ex{cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+
+  /* наведение мышью — только там, где мышь есть.
+     На сенсорных экранах iOS «залипает» на нажатом элементе,
+     из-за чего ячейка не гасла по второму тапу. */
+  @media (hover: hover) and (pointer: fine){
+    body.hiden td.w:hover,
+    body.hiden td.ex:hover{background:transparent}
+    body.hiden td.w:hover{color:var(--ink) !important}
+    body.hiden td.w:hover *{color:var(--muted) !important}
+    body.hiden td.ex:hover,
+    body.hiden td.ex:hover *{color:#3a3833 !important}
+    body.hiden td.ex:hover .src{background:var(--tag-bg) !important;color:var(--tag) !important}
+  }
 </style>
 </head>
 <body>
