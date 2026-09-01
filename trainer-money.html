@@ -51,11 +51,17 @@
   body.hidex td.ex, body.hidex td.ex *{color:transparent !important}
   body.hiden td.w .b2tag{background:transparent !important}
   body.hiden td.w:hover, body.hiden td.ex:hover,
-  body.hidex td.ex:hover{background:transparent}
-  body.hiden td.w:hover, body.hiden td.w:hover *{color:var(--ink) !important}
+  body.hidex td.ex:hover,
+  body.hiden td.w.peeked, body.hiden td.ex.peeked,
+  body.hidex td.ex.peeked{background:transparent}
+  body.hiden td.w:hover, body.hiden td.w:hover *,
+  body.hiden td.w.peeked, body.hiden td.w.peeked *{color:var(--ink) !important}
   body.hiden td.ex:hover, body.hiden td.ex:hover *,
-  body.hidex td.ex:hover, body.hidex td.ex:hover *{color:#3a3833 !important}
-  body.hiden td.w:hover .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
+  body.hidex td.ex:hover, body.hidex td.ex:hover *,
+  body.hiden td.ex.peeked, body.hiden td.ex.peeked *,
+  body.hidex td.ex.peeked, body.hidex td.ex.peeked *{color:#3a3833 !important}
+  body.hiden td.w:hover .b2tag,
+  body.hiden td.w.peeked .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
 
   .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 14px}
   .box h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
@@ -120,6 +126,8 @@
   .weak{margin-top:20px;font-size:14.5px;color:var(--muted);text-align:left;background:var(--bg);border-radius:9px;padding:14px 16px}
   .weak b{color:var(--ink)}
   footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+
+  body.hiden td.w, body.hiden td.ex, body.hidex td.ex{cursor:pointer;-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body>
@@ -634,12 +642,14 @@ document.getElementById('tEn').onclick = function(){
   const on = document.body.classList.contains('hiden');
   this.classList.toggle('on', on);
   this.textContent = on ? 'Показать английский' : 'Скрыть английский';
+  if(window.clearPeeked) clearPeeked();
 };
 document.getElementById('tEx').onclick = function(){
   document.body.classList.toggle('hidex');
   const on = document.body.classList.contains('hidex');
   this.classList.toggle('on', on);
   this.textContent = on ? 'Показать примеры' : 'Скрыть примеры';
+  if(window.clearPeeked) clearPeeked();
 };
 
 document.querySelectorAll('.copybtn').forEach(btn => {
@@ -683,6 +693,28 @@ function finish(){
   r.style.display = 'block';
   r.scrollIntoView({behavior:'smooth', block:'center'});
 }
+
+/* --- открытие скрытой ячейки по нажатию (для телефона) --- */
+(function(){
+  function peekable(el){
+    while(el && el !== document.body){
+      if(el.tagName === 'TD' && (el.classList.contains('w') || el.classList.contains('ex') || el.classList.contains('ru'))) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+  document.addEventListener('click', function(e){
+    var b = document.body;
+    if(!b.classList.contains('hiden') && !b.classList.contains('hidex')) return;
+    var cell = peekable(e.target);
+    if(!cell) return;
+    cell.classList.toggle('peeked');
+  });
+  window.clearPeeked = function(){
+    var els = document.querySelectorAll('td.peeked');
+    for(var i=0;i<els.length;i++) els[i].classList.remove('peeked');
+  };
+})();
 </script>
 </body>
 </html>
