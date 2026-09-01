@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character — units 11 + 8</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6862;
+    --line:#e3e0da; --accent:#3d5a80; --accent-soft:#eaf0f6;
+    --ok:#2d6a4f; --ok-bg:#e7f3ec;
+    --no:#9b2c2c; --no-bg:#fbeaea;
+    --warn:#8a6d1f; --warn-bg:#fdf6e3;
+    --b2:#7a4b8f; --b2-bg:#f3ecf7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  header{margin-bottom:28px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .progress-bar{height:4px;background:var(--line);border-radius:2px;margin-top:20px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .4s ease}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 4px}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 20px}
+
+  .tbl-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .tool{font:inherit;font-size:13.5px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--muted)}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+  .tool.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+  th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1.5px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr.grp td{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;padding:9px 10px}
+  td.w{font-weight:600;width:27%}
+  td.ru{color:var(--muted);width:26%}
+  td.ex{font-style:italic;color:#3a3833}
+  .b2tag{display:inline-block;font-size:10px;font-style:normal;font-weight:700;letter-spacing:.06em;
+    background:var(--b2-bg);color:var(--b2);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  body.hiden td.w, body.hiden td.ex,
+  body.hidex td.ex{background:var(--line);border-radius:5px}
+  body.hiden td.w, body.hiden td.w *,
+  body.hiden td.ex, body.hiden td.ex *,
+  body.hidex td.ex, body.hidex td.ex *{color:transparent !important}
+  body.hiden td.w .b2tag{background:transparent !important}
+  body.hiden td.w:hover, body.hiden td.ex:hover,
+  body.hidex td.ex:hover{background:transparent}
+  body.hiden td.w:hover, body.hiden td.w:hover *{color:var(--ink) !important}
+  body.hiden td.ex:hover, body.hiden td.ex:hover *,
+  body.hidex td.ex:hover, body.hidex td.ex:hover *{color:#3a3833 !important}
+  body.hiden td.w:hover .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
+
+  .box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+  .box h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+  .copyable{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;
+    max-height:230px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:0 0 10px}
+  .copybtn{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer}
+  .copybtn:hover{background:#2f4a6b}
+  .copybtn.done{background:var(--ok)}
+  .steps{margin:0 0 18px;padding-left:20px;color:var(--muted);font-size:14.5px}
+  .steps li{margin-bottom:4px}
+
+  .q{padding:16px 0;border-top:1px solid var(--line)}
+  .q:first-of-type{border-top:none;padding-top:4px}
+  .prompt{margin:0 0 12px}
+  .num{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:8px;font-size:14px}
+  .gloss{color:var(--muted);font-size:13.5px}
+  .dim{font-weight:400;color:var(--muted)}
+
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  button.opt{
+    font:inherit;font-size:15px;background:#fff;border:1.5px solid var(--line);
+    border-radius:9px;padding:9px 15px;cursor:pointer;transition:.15s;color:var(--ink);
+  }
+  button.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+  button.opt:disabled{cursor:default;opacity:.55}
+  button.opt.picked-ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);font-weight:600;opacity:1}
+  button.opt.picked-no{background:var(--no-bg);border-color:var(--no);color:var(--no);font-weight:600;opacity:1}
+  button.opt.reveal{border-color:var(--ok);color:var(--ok);opacity:1}
+
+  input.gap{
+    font:inherit;font-size:15px;border:none;border-bottom:1.5px solid var(--accent);
+    background:transparent;padding:2px 6px;min-width:150px;color:var(--ink);
+  }
+  input.gap:focus{outline:none;background:var(--accent-soft)}
+  input.gap.ok{border-color:var(--ok);color:var(--ok);font-weight:600}
+  input.gap.no{border-color:var(--no);color:var(--no)}
+  .check{font:inherit;font-size:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;margin-left:10px}
+  .check:hover{background:#2f4a6b}
+
+  .fb{margin:11px 0 0;font-size:14.5px;padding:10px 13px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.ok{background:var(--ok-bg);color:var(--ok)}
+  .fb.no{background:var(--no-bg);color:var(--no)}
+  .fb b{font-weight:700}
+
+  .say{border-top:1px solid var(--line);padding:15px 0}
+  .say:first-of-type{border-top:none}
+  .say p{margin:0 0 9px}
+  .peek{font:inherit;font-size:13.5px;background:none;border:1px dashed var(--line);border-radius:7px;padding:5px 11px;cursor:pointer;color:var(--muted)}
+  .peek:hover{border-color:var(--accent);color:var(--accent)}
+  .answer{display:none;margin:9px 0 0;padding:10px 13px;background:var(--accent-soft);border-radius:8px;font-size:14.5px}
+  .answer.show{display:block}
+  .cue{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:15px 17px;margin:6px 0 12px}
+  .cue p{margin:0 0 6px}
+  .cue ul{margin:6px 0 0;padding-left:20px;color:var(--muted)}
+  .warnbox{background:var(--warn-bg);color:var(--warn);border-radius:9px;padding:12px 15px;font-size:14.5px;margin:0 0 18px}
+
+  #result{text-align:center;padding:34px 24px}
+  #result .score{font-size:44px;font-weight:700;letter-spacing:-.02em;margin:0}
+  #result .of{color:var(--muted);font-size:15px;margin:2px 0 16px}
+  #result .verdict{font-size:17px;margin:0 auto;max-width:480px}
+  .again{font:inherit;margin-top:22px;background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;font-size:15px}
+  .weak{margin-top:20px;font-size:14.5px;color:var(--muted);text-align:left;background:var(--bg);border-radius:9px;padding:14px 16px}
+  .weak b{color:var(--ink)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Character · характер и личность</h1>
+  <p class="sub">Две главы сразу: <i>Describing character</i> (Pre-Int, unit 11) + <i>Describing people: personality</i> (Upper-int, unit 8) · B2–C1 / IELTS · 35 минут</p>
+  <div class="progress-bar"><div class="progress-fill" id="pf"></div></div>
+</header>
+
+<section>
+  <h2>Главная мысль этой темы</h2>
+  <p class="hint" style="margin-bottom:14px">В остальных темах слово называет вещь. Здесь оно называет ещё и <b>ваше отношение</b> к человеку. Одна и та же черта — бережливость — по-английски будет <i>thrifty</i>, если вы одобряете, и <i>stingy</i>, если осуждаете. Упорство — <i>determined</i> или <i>obstinate</i>. Прямота — <i>frank</i> или <i>blunt</i>. Черта одна, слов два, и выбор выдаёт вас с головой.</p>
+  <p class="hint" style="margin-bottom:14px">Это и делает тему ценной для экзамена: умение выбрать нужное слово из пары показывает владение языком лучше, чем десяток редких прилагательных. Пятый раздел таблицы — самый важный во всей главе.</p>
+  <ol class="steps">
+    <li>Прочитайте таблицу, особое внимание — блоку E.</li>
+    <li>«Скрыть английский» и второй проход вслух.</li>
+    <li>Упражнения. Третье — переворот отношения — ядро темы.</li>
+    <li>Chatty, затем разделы Speaking.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Вокабуляр</h2>
+  <p class="hint">Обе главы плюс пять выражений уровня B2–C1 сверх учебников — они помечены <span class="b2tag">B2</span>. Наведите курсор на скрытую ячейку, чтобы подсмотреть одну строку.</p>
+  <div class="tbl-tools">
+    <button class="tool" id="tEn">Скрыть английский</button>
+    <button class="tool" id="tEx">Скрыть примеры</button>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Word</th><th>Перевод</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">A · Базовые черты</td></tr>
+      <tr><td class="w">reliable ↔ unreliable</td><td class="ru">надёжный ↔ ненадёжный</td><td class="ex">She often promises to do things but forgets — she's a bit unreliable.</td></tr>
+      <tr><td class="w">confident ↔ shy</td><td class="ru">уверенный в себе ↔ застенчивый</td><td class="ex">Emma is quite shy — she finds it difficult to talk to strangers.</td></tr>
+      <tr><td class="w">hard-working ↔ lazy</td><td class="ru">трудолюбивый ↔ ленивый</td><td class="ex">My brother is in the office from eight to six every day — he's very hard-working.</td></tr>
+      <tr><td class="w">a good sense of humour</td><td class="ru">чувство юмора</td><td class="ex">She has a great sense of humour — she can laugh at almost anything.</td></tr>
+      <tr><td class="w">serious</td><td class="ru">серьёзный, неулыбчивый</td><td class="ex">He's usually quite serious and doesn't laugh very much.</td></tr>
+      <tr><td class="w">patient ↔ impatient</td><td class="ru">терпеливый ↔ нетерпеливый</td><td class="ex">My teacher explains things again and never gets angry — she's very patient.</td></tr>
+      <tr><td class="w">generous ↔ mean</td><td class="ru">щедрый ↔ скупой</td><td class="ex">He has never bought me a drink in ten years — he's incredibly mean.</td></tr>
+      <tr><td class="w">honest ↔ dishonest</td><td class="ru">честный ↔ нечестный</td><td class="ex">An honest person tells the truth even when it costs them something.</td></tr>
+      <tr><td class="w">calm ↔ nervous · anxious</td><td class="ru">спокойный ↔ нервный, тревожный</td><td class="ex">She stayed completely calm while everyone else panicked.</td></tr>
+      <tr><td class="w">kind</td><td class="ru">добрый — хочет помогать людям</td><td class="ex">It was very kind of her to stay and help. <span class="dim">Опп. unkind.</span></td></tr>
+      <tr><td class="w">nice · friendly · pleasant</td><td class="ru">приятный, дружелюбный — легко общается</td><td class="ex">Everyone at the office is friendly. <span class="dim">Опп. unfriendly, unpleasant.</span></td></tr>
+      <tr><td class="w">sensible ↔ silly</td><td class="ru">благоразумный ↔ глупый, несерьёзный</td><td class="ex">I've never known Emilia to do anything silly — she's very sensible.</td></tr>
+      <tr><td class="w">to trust somebody</td><td class="ru">доверять кому-л.</td><td class="ex">I know I can always trust her.</td></tr>
+      <tr><td class="w">creative · talented</td><td class="ru">творческий · одарённый</td><td class="ex">She makes things and she's a very talented artist. I wish I had her talent.</td></tr>
+
+      <tr class="grp"><td colspan="3">B · Ум и способности</td></tr>
+      <tr><td class="w">intelligent · bright · sharp</td><td class="ru">умный · смышлёный · сообразительный</td><td class="ex">She's a bright student — she picks things up almost immediately.</td></tr>
+      <tr><td class="w">shrewd</td><td class="ru">проницательный, с житейским умом</td><td class="ex">He's a shrewd businessman — he always knows what a deal is really worth.</td></tr>
+      <tr><td class="w">able · gifted · talented</td><td class="ru">способный · одарённый · талантливый</td><td class="ex">She's a gifted musician; she was playing concerts at twelve.</td></tr>
+      <tr><td class="w">brainy <span class="dim">(разг.)</span></td><td class="ru">башковитый</td><td class="ex">My sister's the brainy one in the family.</td></tr>
+      <tr><td class="w">stupid · foolish · daft</td><td class="ru">глупый · неразумный · дурацкий</td><td class="ex">It was a foolish decision and he regretted it within a week.</td></tr>
+      <tr><td class="w">brainless · dim · thick <span class="dim">(разг., обидно)</span></td><td class="ru">тупой <span class="dim">— в лицо не говорят</span></td><td class="ex">Don't call people thick — these words are informal and offensive.</td></tr>
+      <tr><td class="w">cunning · crafty · sly</td><td class="ru">хитрый — ум, направленный на обман</td><td class="ex">It was a cunning plan, and nobody realised until it was too late.</td></tr>
+
+      <tr class="grp"><td colspan="3">C · Отношение к жизни</td></tr>
+      <tr><td class="w">optimistic ↔ pessimistic</td><td class="ru">оптимистичный ↔ пессимистичный</td><td class="ex">Amal is pessimistic while Nia is optimistic: he expects the worst, she looks on the bright side.</td></tr>
+      <tr><td class="w">to look on the bright side</td><td class="ru">смотреть на вещи оптимистично</td><td class="ex">Try to look on the bright side — at least the flight wasn't cancelled.</td></tr>
+      <tr><td class="w">extroverted ↔ introverted</td><td class="ru">экстраверт ↔ интроверт</td><td class="ex">Ben loves being the focus of attention while Jake prefers to be alone with his thoughts.</td></tr>
+      <tr><td class="w">tense · wound up · stressed out</td><td class="ru">напряжённый, на взводе <span class="dim">(два последних — разг.)</span></td><td class="ex">I feel very tense after a busy day at work, but after a hot bath I soon feel relaxed.</td></tr>
+      <tr><td class="w">relaxed</td><td class="ru">расслабленный, спокойный</td><td class="ex">He's much more relaxed since he changed jobs.</td></tr>
+      <tr><td class="w">practical · down-to-earth</td><td class="ru">практичный · приземлённый, здравомыслящий</td><td class="ex">Eva is very practical and down-to-earth — she'd never do anything stupid.</td></tr>
+      <tr><td class="w">sensitive</td><td class="ru">ранимый, чувствительный <span class="dim">— не «разумный»!</span></td><td class="ex">Roberto is very sensitive: he gets upset if he feels people are criticising him.</td></tr>
+      <tr><td class="w">to get upset · worked-up</td><td class="ru">расстраиваться · заводиться <span class="dim">(разг.)</span></td><td class="ex">There's no point getting worked-up about something you can't change.</td></tr>
+
+      <tr class="grp"><td colspan="3">D · Отношение к людям</td></tr>
+      <tr><td class="w">sociable · gregarious</td><td class="ru">общительный <span class="dim">(второе — книжное)</span></td><td class="ex">My brother is sociable because he loves being with other people.</td></tr>
+      <tr><td class="w">quarrelsome · argumentative</td><td class="ru">склочный · спорщик</td><td class="ex">He's so argumentative — he disagrees with everything you say on principle.</td></tr>
+      <tr><td class="w">cruel · sadistic</td><td class="ru">жестокий · получающий удовольствие от чужой боли</td><td class="ex">It was a cruel thing to say, and he knew exactly how much it would hurt.</td></tr>
+      <tr><td class="w">easy-going · even-tempered · laid-back</td><td class="ru">лёгкий в общении · уравновешенный · невозмутимый</td><td class="ex">She's very even-tempered — I've never once seen her lose her temper.</td></tr>
+      <tr><td class="w">impolite · rude · ill-mannered</td><td class="ru">невежливый · грубый · невоспитанный</td><td class="ex">It's rude to look at your phone while someone is talking to you.</td></tr>
+      <tr><td class="w">trustworthy · sincere</td><td class="ru">заслуживающий доверия · искренний</td><td class="ex">She's completely trustworthy — if she says she'll do it, she will.</td></tr>
+      <tr><td class="w">jealous · envious</td><td class="ru">ревнивый · завидующий</td><td class="ex">He was envious of his brother's success but never admitted it.</td></tr>
+
+      <tr class="grp"><td colspan="3">E · Одна черта — два отношения <span style="text-transform:none;letter-spacing:0;font-weight:400">(главный блок главы)</span></td></tr>
+      <tr><td class="w">determined ↔ obstinate · stubborn · pig-headed</td><td class="ru">целеустремлённый ↔ упрямый, упёртый</td><td class="ex">You call it determined; his colleagues call it pig-headed.</td></tr>
+      <tr><td class="w">thrifty · economical ↔ stingy · tight-fisted · miserly</td><td class="ru">бережливый ↔ скупой, прижимистый</td><td class="ex">Carmen's very thrifty. / Carmen's very stingy. <span class="dim">Одно поведение, разное отношение.</span></td></tr>
+      <tr><td class="w">self-assured · confident ↔ self-important · arrogant · full of yourself</td><td class="ru">уверенный в себе ↔ самодовольный, высокомерный</td><td class="ex">I find Marcus self-assured. / I find Marcus self-important.</td></tr>
+      <tr><td class="w">unconventional · original ↔ eccentric · odd · peculiar · weird</td><td class="ru">самобытный ↔ странный, чудаковатый</td><td class="ex">Freya is very original. / Freya is peculiar.</td></tr>
+      <tr><td class="w">frank · direct · open ↔ blunt · abrupt · brusque · curt</td><td class="ru">прямой, откровенный ↔ резкий, бесцеремонный</td><td class="ex">Molly's usually frank. / Molly's usually blunt.</td></tr>
+      <tr><td class="w">broad-minded ↔ unprincipled · permissive</td><td class="ru">широких взглядов ↔ беспринципный, всё позволяющий</td><td class="ex">Grace is quite broad-minded. / Grace is quite unprincipled.</td></tr>
+      <tr><td class="w">enquiring · inquisitive ↔ nosy</td><td class="ru">любознательный ↔ любопытный, сующий нос</td><td class="ex">Don't you think James is inquisitive? / Don't you think James is nosy?</td></tr>
+      <tr><td class="w">generous ↔ extravagant</td><td class="ru">щедрый ↔ транжира</td><td class="ex">Generous with her friends, extravagant with herself.</td></tr>
+      <tr><td class="w">innocent ↔ naive</td><td class="ru">простодушный ↔ наивный</td><td class="ex">At eighteen he was innocent; at forty the same trust looks naive.</td></tr>
+      <tr><td class="w">ambitious ↔ pushy</td><td class="ru">амбициозный ↔ пробивной, назойливый</td><td class="ex">She's ambitious. / She's pushy. <span class="dim">Разница только в симпатии говорящего.</span></td></tr>
+      <tr><td class="w">assertive ↔ aggressive · bossy</td><td class="ru">умеющий отстоять своё ↔ агрессивный, командующий</td><td class="ex">Sam can be assertive. / Sam can be aggressive.</td></tr>
+
+      <tr class="grp"><td colspan="3">F · Отрицательные приставки</td></tr>
+      <tr><td class="w">un- : unkind, unfriendly, unpleasant, unreliable</td><td class="ru">самая частая приставка</td><td class="ex">He was unkind about her work and completely unapologetic afterwards.</td></tr>
+      <tr><td class="w">im- перед p: impatient, impolite</td><td class="ru">перед «p» пишется im-, не in-</td><td class="ex">Don't be impatient — the results come out next week.</td></tr>
+      <tr><td class="w">dis- : dishonest</td><td class="ru">отдельный случай, запомнить</td><td class="ex">He was dishonest about where the money had come from.</td></tr>
+
+      <tr class="grp"><td colspan="3">G · Пять выражений сверх учебников</td></tr>
+      <tr><td class="w">to take after somebody <span class="b2tag">B2</span></td><td class="ru">пойти в кого-то характером или внешне</td><td class="ex">She takes after her father — same stubbornness, same sense of humour.</td></tr>
+      <tr><td class="w">self-conscious <span class="b2tag">B2</span></td><td class="ru">стесняющийся, зажатый <span class="dim">— не «уверенный»!</span></td><td class="ex">I feel self-conscious speaking English in front of colleagues.</td></tr>
+      <tr><td class="w">easy to get on with <span class="b2tag">B2</span></td><td class="ru">лёгкий в общении</td><td class="ex">He's very easy to get on with, which matters more than talent in a small team.</td></tr>
+      <tr><td class="w">to come across as <span class="b2tag">B2</span></td><td class="ru">производить впечатление кого-л.</td><td class="ex">She comes across as shy at first, but she's actually very confident.</td></tr>
+      <tr><td class="w">to have a lot in common with <span class="b2tag">B2</span></td><td class="ru">иметь много общего с кем-л.</td><td class="ex">We have a lot in common, which is probably why we've stayed friends.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Для Chatty</h2>
+  <p class="hint">Промт первым сообщением, слова вторым. Отличие этой темы: ИИ будет заставлять вас переворачивать оценку — сказать одно и то же с симпатией и без.</p>
+
+  <div class="box">
+    <h3>1 · Промт</h3>
+    <div class="copyable" id="promptText">You are my speaking partner. I'm B2 moving towards C1, preparing for IELTS Speaking. Topic: CHARACTER AND PERSONALITY.
+
+1. Your turns: 2-3 sentences, always ending with a question. I do 80% of the talking.
+2. Use my word list (next message). Put 1-2 of those words into every turn of yours, and steer me into using them too.
+3. Move through these stages, about 3 exchanges each: my own personality and how friends would describe me - a person I admire and why - a personality type I find difficult to work with - whether character is inherited or shaped by upbringing - what qualities matter most in a colleague or a leader.
+4. From stage 4 onwards, ask IELTS Part 3 questions: abstract, about people in general, not about me.
+5. Special drill for this topic: three or four times during the conversation, take an adjective I have just used and ask me to say the same thing with the opposite attitude - for example if I say someone is determined, ask me how an unsympathetic person would describe them. Then tell me whether my choice sounded natural.
+6. End each turn with one short line "Better: ..." - one grammar fix, or a stronger word from the list I should have used. One line only.
+7. After 15 exchanges: tell me which words I used and which I didn't, then ask me to make a sentence with each unused one.
+
+Start by asking how my closest friend would describe me in three words.</div>
+    <button class="copybtn" data-src="promptText">Скопировать промт</button>
+  </div>
+
+  <div class="box">
+    <h3>2 · Слова</h3>
+    <div class="copyable" id="wordsText">Here is my word list for today: reliable, unreliable, confident, shy, hard-working, lazy, a good sense of humour, patient, impatient, generous, mean, honest, calm, anxious, kind, sensible, silly, to trust, creative, talented, intelligent, bright, shrewd, gifted, cunning, optimistic, pessimistic, to look on the bright side, extroverted, introverted, tense, stressed out, relaxed, down-to-earth, sensitive, to get upset, sociable, gregarious, argumentative, easy-going, even-tempered, laid-back, rude, ill-mannered, trustworthy, sincere, envious, determined, obstinate, stubborn, thrifty, stingy, tight-fisted, self-assured, arrogant, unconventional, eccentric, frank, blunt, broad-minded, inquisitive, nosy, extravagant, naive, ambitious, pushy, assertive, bossy, to take after someone, self-conscious, easy to get on with, to come across as, to have a lot in common with.</div>
+    <button class="copybtn" data-src="wordsText">Скопировать слова</button>
+  </div>
+</section>
+
+<section>
+  <h2>1 · Отрицательные приставки</h2>
+  <p class="hint">Впишите слово целиком, вместе с приставкой. Enter — проверить.</p>
+  <div id="ex1"></div>
+</section>
+
+<section>
+  <h2>2 · Опишите одним словом</h2>
+  <p class="hint">Упражнение 11.3 из младшего учебника, расширенное.</p>
+  <div id="ex2"></div>
+</section>
+
+<section>
+  <h2>3 · Переверните отношение</h2>
+  <p class="hint">Ядро темы. Скажите то же самое, но с противоположным отношением: похвалу превратите в упрёк и наоборот. Поведение при этом не меняется — меняется только ваша оценка.</p>
+  <div id="ex3"></div>
+</section>
+
+<section>
+  <h2>4 · Близкие по значению</h2>
+  <p class="hint">Найдите пару. Упражнение 8.3 из старшего учебника.</p>
+  <div id="ex4"></div>
+</section>
+
+<section>
+  <h2>5 · Противоположности</h2>
+  <p class="hint">Впишите антоним. Упражнение 8.1.</p>
+  <div id="ex5"></div>
+</section>
+
+<section>
+  <h2>6 · Опросник из журнала</h2>
+  <p class="hint">Вопрос выявляет черту. Какую? Упражнение 8.4.</p>
+  <div id="ex6"></div>
+</section>
+
+<section>
+  <h2>7 · Оттенки: рядом, но не одно и то же</h2>
+  <p class="hint">Восемь пар, где ошибка меняет смысл сказанного, а не просто звучит неловко.</p>
+  <div id="ex7"></div>
+</section>
+
+<section>
+  <h2>8 · Ловушки</h2>
+  <div class="warnbox"><b>Пять ошибок этой темы.</b> Главная — вопрос о характере: <i>What's he like?</i>, а не <s>How is he like?</s> И два ложных друга: <i>sensible</i> — это не «чувствительный», а <i>sympathetic</i> — совсем не «симпатичный».</div>
+  <div id="ex8"></div>
+</section>
+
+<section>
+  <h2>9 · Слова сверх учебников</h2>
+  <p class="hint">Впишите выражение из блока G.</p>
+  <div id="ex9"></div>
+</section>
+
+<section>
+  <h2>10 · Скажите вслух · IELTS Part 1</h2>
+  <p class="hint">Два-три предложения на вопрос. Сначала свой ответ вслух, потом подсматривайте.</p>
+  <div id="ex10"></div>
+</section>
+
+<section>
+  <h2>11 · IELTS Part 2</h2>
+  <p class="hint">Минута на подготовку, две минуты говорить. Запишите себя и посчитайте слова из таблицы.</p>
+  <div class="cue">
+    <p><b>Describe a person you know who has an interesting personality.</b></p>
+    <p>You should say:</p>
+    <ul>
+      <li>who this person is and how you know them</li>
+      <li>what they are like</li>
+      <li>how other people react to them</li>
+      <li>and explain why you find their personality interesting.</li>
+    </ul>
+  </div>
+  <div id="ex11"></div>
+</section>
+
+<section>
+  <h2>12 · IELTS Part 3 · рассуждение</h2>
+  <p class="hint">Схема прежняя: позиция → причина → пример → уступка.</p>
+  <div id="ex12"></div>
+</section>
+
+<section id="result" style="display:none">
+  <p class="score" id="score">0</p>
+  <p class="of">из <span id="total">0</span> — <span id="pct">0</span>%</p>
+  <p class="verdict" id="verdict"></p>
+  <div class="weak" id="weak" style="display:none"></div>
+  <button class="again" onclick="location.reload()">Пройти заново</button>
+</section>
+
+<footer>Redman, <i>EVIU Pre-intermediate and Intermediate</i>, Unit 11 Describing character · McCarthy &amp; O'Dell, <i>EVIU Upper-intermediate</i>, Unit 8 Describing people: personality · CUP</footer>
+</div>
+
+<script>
+/* ============ 1 · ПРИСТАВКИ ============ */
+const EX1 = [
+  {pre:"kind →", post:"", a:["unkind"], f:"<b>unkind.</b>"},
+  {pre:"friendly →", post:"", a:["unfriendly"], f:"<b>unfriendly.</b>"},
+  {pre:"pleasant →", post:"", a:["unpleasant"], f:"<b>unpleasant.</b>"},
+  {pre:"patient →", post:"", a:["impatient"],
+   f:"<b>impatient</b> — перед <i>p</i> приставка становится <b>im-</b>, а не <i>in-</i>. То же в <i>impolite</i>."},
+  {pre:"honest →", post:"", a:["dishonest"],
+   f:"<b>dishonest</b> — здесь <b>dis-</b>. Отдельный случай, логики нет, только запомнить."},
+  {pre:"reliable →", post:"", a:["unreliable"], f:"<b>unreliable.</b>"}
+];
+
+/* ============ 2 · ОДНИМ СЛОВОМ ============ */
+const EX2 = [
+  {p:"Он в офисе с восьми утра до шести вечера каждый день.", o:["hard-working","ambitious","serious"], a:0,
+   f:"<b>hard-working</b> — через дефис, всегда."},
+  {p:"За десять лет он ни разу не угостил меня даже кофе.", o:["mean","thrifty","poor"], a:0,
+   f:"<b>mean.</b> Если бы вы его оправдывали, сказали бы <i>thrifty</i> — бережливый."},
+  {p:"Она часто обещает и иногда забывает.", o:["unreliable","dishonest","lazy"], a:0,
+   f:"<b>unreliable</b> — на неё нельзя положиться. <i>Dishonest</i> сильнее: это уже про враньё."},
+  {p:"Учительница объясняет по третьему разу и не злится.", o:["patient","kind","calm"], a:0,
+   f:"<b>patient</b> — именно про способность не раздражаться, когда долго."},
+  {p:"Эмме трудно знакомиться и заговаривать с незнакомыми.", o:["shy","unfriendly","introverted"], a:0,
+   f:"<b>shy.</b> <i>Unfriendly</i> — это про нежелание общаться, а не про робость."},
+  {p:"Она никогда не делает глупостей и всё продумывает.", o:["sensible","sensitive","serious"], a:0,
+   f:"<b>sensible</b> — благоразумная. <i>Sensitive</i> — ранимая, совсем другое."},
+  {p:"Все паниковали, а она спокойно решала, что делать.", o:["calm","relaxed","cold"], a:0,
+   f:"<b>calm</b> — спокойный в трудной ситуации. <i>Relaxed</i> — расслабленный вообще по жизни."},
+  {p:"Он платит за всех и постоянно что-то дарит друзьям.", o:["generous","extravagant","rich"], a:0,
+   f:"<b>generous</b> — если одобряете. Если считаете, что он сорит деньгами, — <i>extravagant</i>."}
+];
+
+/* ============ 3 · ПЕРЕВЕРНУТЬ ОТНОШЕНИЕ ============ */
+const EX3 = [
+  {pre:"Carmen's very thrifty. <span class='gloss'>(с осуждением) →</span> Carmen's very", post:".",
+   a:["stingy","mean","tight-fisted","miserly"],
+   f:"<b>stingy</b>, а также <i>mean, tight-fisted, miserly</i>. Поведение то же: она не тратит лишнего."},
+  {pre:"Molly's usually frank. <span class='gloss'>(с осуждением) →</span> Molly's usually", post:".",
+   a:["blunt","abrupt","brusque","curt"],
+   f:"<b>blunt.</b> Говорит правду в глаза — можно назвать это откровенностью, можно резкостью."},
+  {pre:"Grace is quite broad-minded. <span class='gloss'>(с осуждением) →</span> Grace is quite", post:".",
+   a:["unprincipled","permissive"],
+   f:"<b>unprincipled.</b> «Широких взглядов» с другой стороны выглядит как «беспринципная»."},
+  {pre:"Sam can be aggressive. <span class='gloss'>(с одобрением) →</span> Sam can be", post:".",
+   a:["assertive"],
+   f:"<b>assertive</b> — умеет отстоять своё. Тот же напор, но одобряемый."},
+  {pre:"Nico's quite bossy. <span class='gloss'>(с одобрением) →</span> Nico's quite", post:".",
+   a:["assertive"],
+   f:"<b>assertive.</b> <i>Bossy</i> — «раскомандовался», разговорное и всегда с неприязнью."},
+  {pre:"I find Marcus self-important. <span class='gloss'>(с одобрением) →</span> I find Marcus", post:".",
+   a:["self-assured","confident"],
+   f:"<b>self-assured</b> или <i>confident</i>. Разница между «уверен в себе» и «много о себе думает» — только в вашем отношении."},
+  {pre:"Don't you think James is nosy? <span class='gloss'>(нейтрально) →</span> Don't you think James is", post:"?",
+   a:["inquisitive","enquiring","curious"],
+   f:"<b>inquisitive</b> — любознательный. <i>Nosy</i> — сует нос не в своё дело."},
+  {pre:"Freya is very original. <span class='gloss'>(с осуждением) →</span> Freya is very", post:".",
+   a:["peculiar","odd","eccentric","weird"],
+   f:"<b>peculiar</b>, также <i>odd, eccentric, weird</i>. Самобытность со стороны часто выглядит странностью."}
+];
+
+/* ============ 4 · СИНОНИМЫ ============ */
+const EX4 = [
+  {p:"brusque = ?", o:["curt","frank","gifted"], a:0,
+   f:"<b>brusque = curt.</b> Оба про резкую, обрывистую манеру."},
+  {p:"crafty = ?", o:["cunning","clever","careful"], a:0,
+   f:"<b>crafty = cunning.</b> Хитрость, направленная на обман."},
+  {p:"down-to-earth = ?", o:["sensible","modest","serious"], a:0,
+   f:"<b>down-to-earth = sensible.</b> Практичный, без витания в облаках."},
+  {p:"miserly = ?", o:["tight-fisted","poor","careful"], a:0,
+   f:"<b>miserly = tight-fisted.</b> Оба резко негативные."},
+  {p:"wound up = ?", o:["tense","tired","angry"], a:0,
+   f:"<b>wound up = tense.</b> Буквально «взведённый, как пружина»."},
+  {p:"gifted = ?", o:["talented","lucky","hard-working"], a:0,
+   f:"<b>gifted = talented.</b> Природная способность, а не результат труда."}
+];
+
+/* ============ 5 · ПРОТИВОПОЛОЖНОСТИ ============ */
+const EX5 = [
+  {pre:"clever ↔", post:"", a:["dim","stupid","thick"],
+   f:"<b>dim</b> — по учебнику. Разговорное и обидное, как и <i>thick</i>."},
+  {pre:"extroverted ↔", post:"", a:["introverted"], f:"<b>introverted.</b>"},
+  {pre:"rude ↔", post:"", a:["courteous","polite"],
+   f:"<b>courteous</b> — учтивый, книжное. Обиходное — <i>polite</i>."},
+  {pre:"cruel ↔", post:"", a:["kind-hearted","kind"], f:"<b>kind-hearted.</b>"},
+  {pre:"generous ↔", post:"", a:["tight-fisted","mean","stingy"], f:"<b>tight-fisted.</b>"},
+  {pre:"unsociable ↔", post:"", a:["gregarious","sociable"],
+   f:"<b>gregarious</b> — очень общительный. Слово книжное, в речи чаще <i>sociable</i>."}
+];
+
+/* ============ 6 · ОПРОСНИК ============ */
+const EX6 = [
+  {p:"«If you arrange to meet at 7 pm, do you arrive at 7 pm?»", o:["reliable","patient","sensible"], a:0,
+   f:"<b>reliable</b> — на вас можно положиться."},
+  {p:"«When you have a problem, do you think the worst will happen?»", o:["pessimistic","anxious","sensitive"], a:0,
+   f:"<b>pessimistic.</b>"},
+  {p:"«Do you find it easy to tell your boss he has treated you badly?»", o:["assertive","aggressive","argumentative"], a:0,
+   f:"<b>assertive</b> — умение отстоять себя без агрессии."},
+  {p:"«Do you always look out of the window if you hear a car draw up?»", o:["inquisitive","nervous","sociable"], a:0,
+   f:"<b>inquisitive.</b> Недоброжелатель сказал бы <i>nosy</i>."},
+  {p:"«Do you often buy your friends presents for no particular reason?»", o:["extravagant","generous","kind"], a:0,
+   f:"По ключу учебника — <b>extravagant</b>. Хотя, если одобрять, то же самое зовётся <i>generous</i>."},
+  {p:"«Do you lie awake at night if someone has said something unkind to you?»", o:["sensitive","sensible","nervous"], a:0,
+   f:"<b>sensitive</b> — ранимый. Не путать с <i>sensible</i>."}
+];
+
+/* ============ 7 · ОТТЕНКИ ============ */
+const EX7 = [
+  {p:"Она всё продумывает и не делает глупостей.", o:["sensible","sensitive"], a:0,
+   f:"<b>sensible</b> — благоразумная. <i>Sensitive</i> — ранимая. Разница в одну букву, смысл разный."},
+  {p:"Он расстраивается от любого замечания.", o:["sensible","sensitive"], a:1,
+   f:"<b>sensitive.</b> Запомните пару целиком, по отдельности они путаются."},
+  {p:"Ей неуютно выступать: кажется, что все смотрят и оценивают.", o:["self-confident","self-conscious"], a:1,
+   f:"<b>self-conscious</b> — зажатый, стесняющийся себя. Внешне похоже на <i>self-confident</i>, а смысл противоположный."},
+  {p:"Ему трудно заговорить с незнакомым человеком — по природе такой.", o:["shy","unfriendly"], a:0,
+   f:"<b>shy</b> — робость. <i>Unfriendly</i> — нежелание общаться, это уже про отношение к людям."},
+  {p:"Ему просто не нужна компания, он восстанавливается в одиночестве.", o:["shy","introverted"], a:1,
+   f:"<b>introverted.</b> Интроверт может быть совсем не робким — он просто заряжается иначе."},
+  {p:"Он не отступает, даже когда все советуют бросить. Вы им восхищаетесь.", o:["determined","obstinate"], a:0,
+   f:"<b>determined.</b> То же поведение с раздражением — <i>obstinate, stubborn, pig-headed</i>."},
+  {p:"Ему сказали десять раз, а он делает по-своему. Вы устали.", o:["determined","pig-headed"], a:1,
+   f:"<b>pig-headed</b> — самое сильное в ряду. Буквально «со свиной головой»."},
+  {p:"Она всегда спокойна: ни срывов, ни резких перемен настроения.", o:["even-tempered","laid-back"], a:0,
+   f:"<b>even-tempered</b> — ровный характер. <i>Laid-back</i> — про расслабленность и необязательность, чуть другое."}
+];
+
+/* ============ 8 · ЛОВУШКИ ============ */
+const EX8 = [
+  {p:"Как спросить «что он за человек?»", o:["How is he like?","What's he like?","Оба верны"], a:1,
+   f:"<b>What's he like?</b> Вопрос <s>How is he like?</s> невозможен — это ошибка номер один в теме."},
+  {p:"Ответ на «What's he like?»", o:["He's very nice.","He's like very nice.","Оба верны"], a:0,
+   f:"<b>He's very nice.</b> Слово <i>like</i> есть в вопросе, но в ответе не повторяется."},
+  {p:"«Она мне очень сочувствует, всегда выслушает.» Как это сказать?", o:["She's very sympathetic.","She's very nice-looking.","Оба верны"], a:0,
+   f:"<b>sympathetic</b> = сочувствующий, понимающий. Ложный друг: «симпатичный» по-английски — <i>attractive, good-looking</i>."},
+  {p:"Что верно?", o:["He's a very hard working man.","He's a very hard-working man.","Оба верны"], a:1,
+   f:"<b>hard-working</b> пишется через дефис. Без него получается «тяжело работающий», что не то же самое."},
+  {p:"«Мой брат — интеллигентный человек, начитанный, деликатный.»", o:["My brother is intelligent.","My brother is cultured and well-read.","Оба верны"], a:1,
+   f:"Ещё один ложный друг. <b>Intelligent</b> — просто умный, сообразительный. Русское «интеллигентный» ближе к <i>cultured, well-read, refined</i>."}
+];
+
+/* ============ 9 · СВЕРХ УЧЕБНИКОВ ============ */
+const EX9 = [
+  {pre:"She takes", post:"her father — same stubbornness, same sense of humour.", a:["after"],
+   f:"<b>to take after somebody</b> — пойти в кого-то из родни. Только о родственниках."},
+  {pre:"I feel quite self-", post:"speaking English in front of my colleagues.", a:["conscious"],
+   f:"<b>self-conscious</b> — стесняющийся. Не путать с <i>self-confident</i>."},
+  {pre:"He's very easy to get", post:"with, which matters more than talent in a small team.", a:["on"],
+   f:"<b>easy to get on with</b> — лёгкий в общении. В американском варианте — <i>get along with</i>."},
+  {pre:"She comes", post:"as shy at first, but she's actually very confident.", a:["across"],
+   f:"<b>to come across as</b> — производить впечатление. Очень выручает в Part 2."},
+  {pre:"We have a lot in", post:", which is probably why we've stayed friends for so long.", a:["common"],
+   f:"<b>to have a lot in common (with somebody)</b> — иметь много общего."}
+];
+
+/* ============ 10 · PART 1 ============ */
+const EX10 = [
+  {q:"How would your closest friend describe you?",
+   a:"Probably as reliable, and fairly easy to get on with. I'd like to think she'd also say I have a decent sense of humour, though she might well add that I can be stubborn when I've decided something."},
+  {q:"Are you more of an introvert or an extrovert?",
+   a:"Definitely more introverted. I enjoy people, but I need time alone afterwards to recover — I come across as sociable, and then I disappear for a day."},
+  {q:"Do you take after anyone in your family?",
+   a:"I take after my mother, I think. She's very down-to-earth and hates fuss, and I've inherited that. My father is the optimistic one; I didn't get that at all."},
+  {q:"What kind of people do you find it hard to work with?",
+   a:"Argumentative ones, mostly — people who disagree on principle rather than because they've thought about it. I'd much rather work with someone blunt than someone who argues for the sake of it."},
+  {q:"Do you think people's personalities change as they get older?",
+   a:"In some ways. I was painfully shy as a teenager and I'm not now. But the core seems to stay: my grandmother is ninety and just as stubborn as everyone says she was at twenty."},
+  {q:"Which quality do you most admire in other people?",
+   a:"Being trustworthy, I'd say. Talent is impressive, but if someone says they'll do something and then does it, that's rarer and far more useful."}
+];
+
+/* ============ 11 · PART 2 ============ */
+const EX11 = [
+  {q:"Разберите карточку по плану, затем сравните с образцом — в нём восемнадцать слов из таблицы.",
+   a:"I'd like to talk about my aunt Vera, my mother's older sister, who I've known all my life and who is easily the most interesting person in our family. The first thing anyone notices is how frank she is. She simply says what she thinks — about your job, your haircut, your choice of partner. Depending on who you ask, she is either refreshingly direct or unbearably blunt. She's also extremely determined; my uncle would say pig-headed. When she decided at sixty to learn to paint, three people told her it was too late, which of course guaranteed she'd carry on. She's gifted, as it turns out, though she'd never say so herself. What makes her interesting is that reactions to her are so divided. People who don't know her well find her eccentric and rather intimidating — she isn't polite in the small ways people expect. But everyone who knows her says the same thing: she's completely trustworthy and surprisingly kind-hearted. She once drove four hours to sit with a neighbour who'd had bad news, and never mentioned it to anyone. I find her interesting because she's proof that the same person can be described in two completely opposite ways, and both descriptions are accurate."}
+];
+
+/* ============ 12 · PART 3 ============ */
+const EX12 = [
+  {q:"Is personality inherited or shaped by upbringing?",
+   a:"Both, clearly, though I'd put more weight on upbringing. Twins raised apart do turn out surprisingly similar, which suggests something is inherited. But the same child raised in a household where arguing is normal becomes a different adult from one raised where it isn't. Having said that, parents seem to have less influence than they hope."},
+  {q:"Which personality traits are most useful at work?",
+   a:"Reliability, above everything. Brilliant colleagues who miss deadlines cost the team more than they contribute. After that, being easy to get on with — most work is done in groups, and someone argumentative slows everything down, however gifted they are."},
+  {q:"Do people value the same qualities in different cultures?",
+   a:"The core ones, yes — honesty and reliability seem to be admired everywhere. But the way things are read differs enormously. Being blunt is a virtue in some countries and simply rude in others, so the same behaviour earns praise in one place and offence in another."},
+  {q:"Should employers test candidates' personalities?",
+   a:"I'm sceptical. The tests are easy to game — anyone can work out which answer sounds assertive rather than aggressive. And they encourage hiring people who resemble the existing team. Though of course some structure is better than deciding on gut feeling, which is how it used to be done."},
+  {q:"Can a person change their character if they want to?",
+   a:"Behaviour, yes; character, only slowly. Someone shy can learn to speak in public — I've watched people do it — but they stay shy underneath and simply cope better. I'd expect real change to take years, not the few weeks that self-help books promise."}
+];
+
+/* ============ ДВИЖОК ============ */
+let answered = 0, correct = 0;
+const TOTAL = EX1.length + EX2.length + EX3.length + EX4.length + EX5.length + EX6.length + EX7.length + EX8.length + EX9.length;
+const missed = [];
+document.getElementById('total').textContent = TOTAL;
+
+function bump(ok, label){
+  answered++; if(ok) correct++; else if(label) missed.push(label);
+  document.getElementById('pf').style.width = (answered/TOTAL*100) + '%';
+  if(answered === TOTAL) finish();
+}
+function norm(s){
+  return s.toLowerCase().trim().replace(/[.,!?;]/g,'').replace(/\s+/g,' ');
+}
+
+function buildChoice(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    q.innerHTML = `<p class="prompt"><span class="num">${i+1}</span>${item.p}</p>`;
+    const box = document.createElement('div'); box.className = 'opts';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    item.o.forEach((opt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'opt'; b.innerHTML = opt;
+      b.onclick = () => {
+        const ok = oi === item.a;
+        [...box.children].forEach((c,ci) => {
+          c.disabled = true;
+          if(ci === item.a && !ok) c.classList.add('reveal');
+        });
+        b.classList.add(ok ? 'picked-ok' : 'picked-no');
+        fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+        fb.innerHTML = (ok ? '✓ ' : '✗ ') + item.f;
+        bump(ok, ok ? null : item.o[item.a].replace(/<[^>]+>/g,''));
+      };
+      box.appendChild(b);
+    });
+    q.appendChild(box); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildChoice(document.getElementById('ex2'), EX2);
+buildChoice(document.getElementById('ex4'), EX4);
+buildChoice(document.getElementById('ex6'), EX6);
+buildChoice(document.getElementById('ex7'), EX7);
+buildChoice(document.getElementById('ex8'), EX8);
+
+function buildGap(host, data){
+  data.forEach((item, i) => {
+    const q = document.createElement('div'); q.className = 'q';
+    const p = document.createElement('p'); p.className = 'prompt';
+    p.innerHTML = `<span class="num">${i+1}</span>${item.pre} `;
+    const inp = document.createElement('input');
+    inp.className = 'gap'; inp.type = 'text'; inp.placeholder = '…';
+    inp.setAttribute('autocomplete','off'); inp.setAttribute('autocapitalize','off');
+    inp.setAttribute('spellcheck','false');
+    const tail = document.createElement('span'); tail.innerHTML = ' ' + item.post;
+    const btn = document.createElement('button'); btn.className = 'check'; btn.textContent = 'Проверить';
+    const fb = document.createElement('p'); fb.className = 'fb';
+    const go = () => {
+      if(inp.disabled) return;
+      const ok = item.a.some(x => norm(x) === norm(inp.value));
+      inp.disabled = true; btn.style.display = 'none';
+      inp.classList.add(ok ? 'ok' : 'no');
+      fb.className = 'fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = ok
+        ? '✓ ' + (item.f || 'Верно.')
+        : '✗ Ответ: <b>' + item.a[0] + '</b>' + (item.f ? ' — ' + item.f : '');
+      bump(ok, ok ? null : item.a[0]);
+    };
+    btn.onclick = go;
+    inp.onkeydown = e => { if(e.key === 'Enter') go(); };
+    p.appendChild(inp); p.appendChild(tail); p.appendChild(btn);
+    q.appendChild(p); q.appendChild(fb); host.appendChild(q);
+  });
+}
+buildGap(document.getElementById('ex1'), EX1);
+buildGap(document.getElementById('ex3'), EX3);
+buildGap(document.getElementById('ex5'), EX5);
+buildGap(document.getElementById('ex9'), EX9);
+
+function buildSay(hostId, data, btnLabel){
+  const host = document.getElementById(hostId);
+  data.forEach((item, i) => {
+    const d = document.createElement('div'); d.className = 'say';
+    d.innerHTML = `<p>${data.length > 1 ? '<span class="num">'+(i+1)+'</span>' : ''}${item.q}</p>`;
+    const b = document.createElement('button'); b.className = 'peek'; b.textContent = btnLabel;
+    const a = document.createElement('p'); a.className = 'answer'; a.innerHTML = item.a;
+    b.onclick = () => { a.classList.add('show'); b.style.display = 'none'; };
+    d.appendChild(b); d.appendChild(a); host.appendChild(d);
+  });
+}
+buildSay('ex10', EX10, 'Показать вариант');
+buildSay('ex11', EX11, 'Показать образец ответа');
+buildSay('ex12', EX12, 'Показать вариант');
+
+document.getElementById('tEn').onclick = function(){
+  document.body.classList.toggle('hiden');
+  const on = document.body.classList.contains('hiden');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать английский' : 'Скрыть английский';
+};
+document.getElementById('tEx').onclick = function(){
+  document.body.classList.toggle('hidex');
+  const on = document.body.classList.contains('hidex');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'Показать примеры' : 'Скрыть примеры';
+};
+
+document.querySelectorAll('.copybtn').forEach(btn => {
+  const original = btn.textContent;
+  btn.onclick = () => {
+    const text = document.getElementById(btn.dataset.src).innerText;
+    const done = () => {
+      btn.textContent = '✓ Скопировано'; btn.classList.add('done');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+    } else fallback(text, done);
+  };
+});
+function fallback(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Скопируйте текст вручную.'); }
+  document.body.removeChild(ta);
+}
+
+function finish(){
+  const pct = Math.round(correct / TOTAL * 100);
+  document.getElementById('score').textContent = correct;
+  document.getElementById('pct').textContent = pct;
+  let v;
+  if(pct >= 90) v = "Обе главы закрыты. В Chatty обязательно доведите дело до переворотов оценки — именно они здесь показывают уровень.";
+  else if(pct >= 75) v = "Хорошо. Перечитайте разборы там, где ошиблись, и всё равно идите говорить: пары вроде determined и obstinate встают на место только в живой речи.";
+  else if(pct >= 50) v = "Пройдите заново раздел «Переверните отношение» — без него остальное рассыпается. Разговор перенесите на завтра.";
+  else v = "Рано: две главы за раз — большой объём. Вернитесь к таблице, особенно к блоку E, и пройдите её вслух.";
+  document.getElementById('verdict').textContent = v;
+  if(missed.length){
+    const uniq = [...new Set(missed)];
+    document.getElementById('weak').innerHTML =
+      '<b>Забрать в Chatty:</b> ' + uniq.join(' · ') + '<br><br>Скажите ИИ: «Please make sure I use these words today: ' + uniq.join(', ') + '.»';
+    document.getElementById('weak').style.display = 'block';
+  }
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.scrollIntoView({behavior:'smooth', block:'center'});
+}
+</script>
+</body>
+</html>
