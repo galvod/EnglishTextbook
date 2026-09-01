@@ -132,22 +132,7 @@
 
   body.hiden td.w, body.hiden td.ex, body.hidex td.ex{cursor:pointer;-webkit-tap-highlight-color:transparent}
 
-
-  /* наведение мышью — только там, где мышь есть.
-     На сенсорных экранах iOS «залипает» на нажатом элементе,
-     из-за чего ячейка не гасла по второму тапу. */
-  @media (hover: hover) and (pointer: fine){
-    body.hiden td.w:hover,
-    body.hiden td.ex:hover,
-    body.hidex td.ex:hover{background:transparent}
-    body.hiden td.w:hover,
-    body.hiden td.w:hover *{color:var(--ink) !important}
-    body.hiden td.ex:hover,
-    body.hiden td.ex:hover *,
-    body.hidex td.ex:hover,
-    body.hidex td.ex:hover *{color:#3a3833 !important}
-    body.hiden td.w:hover .b2tag{background:var(--b2-bg) !important;color:var(--b2) !important}
-  }
+  body.hiden td.peeked, body.hidex td.peeked{box-shadow:inset 3px 0 0 var(--accent)}
 </style>
 </head>
 <body>
@@ -171,7 +156,7 @@
 
 <section>
   <h2>Вокабуляр главы</h2>
-  <p class="hint">Всё из юнита 6 плюс пять выражений уровня B2–C1, которых в учебнике нет — они помечены <span class="b2tag">B2</span> и подобраны под тему изменения климата, самую вероятную в Part 3. Наведите курсор на скрытую ячейку, чтобы подсмотреть одну строку.</p>
+  <p class="hint">Всё из юнита 6 плюс пять выражений уровня B2–C1, которых в учебнике нет — они помечены <span class="b2tag">B2</span> и подобраны под тему изменения климата, самую вероятную в Part 3. Нажмите на скрытую ячейку, чтобы открыть одну строку; нажмите ещё раз — закроется. Открытые строки помечены синей полоской слева.</p>
   <div class="tbl-tools">
     <button class="tool" id="tEn">Скрыть английский</button>
     <button class="tool" id="tEx">Скрыть примеры</button>

@@ -65,19 +65,7 @@
 
   body.hiden td.w, body.hiden td.ex, body.hidex td.ex{cursor:pointer;-webkit-tap-highlight-color:transparent}
 
-
-  /* наведение мышью — только там, где мышь есть.
-     На сенсорных экранах iOS «залипает» на нажатом элементе,
-     из-за чего ячейка не гасла по второму тапу. */
-  @media (hover: hover) and (pointer: fine){
-    body.hiden td.w:hover,
-    body.hiden td.ex:hover{background:transparent}
-    body.hiden td.w:hover{color:var(--ink) !important}
-    body.hiden td.w:hover *{color:var(--muted) !important}
-    body.hiden td.ex:hover,
-    body.hiden td.ex:hover *{color:#3a3833 !important}
-    body.hiden td.ex:hover .src{background:var(--tag-bg) !important;color:var(--tag) !important}
-  }
+  body.hiden td.peeked, body.hidex td.peeked{box-shadow:inset 3px 0 0 var(--accent)}
 </style>
 </head>
 <body>
@@ -89,7 +77,7 @@
 
 <section>
   <h2>15 выражений</h2>
-  <p class="hint">Первый пример — из тренажёра по погоде, второй — намеренно на другую тему: так видно, что выражение переносится куда угодно. Это тот слой языка, который на IELTS отличает «правильно» от «естественно». Кнопка «Скрыть английский» закрывает и выражение, и оба примера — остаётся только русское значение, по которому нужно вспомнить фразу. Наведите курсор на закрытую ячейку, чтобы проверить себя.</p>
+  <p class="hint">Первый пример — из тренажёра по погоде, второй — намеренно на другую тему: так видно, что выражение переносится куда угодно. Это тот слой языка, который на IELTS отличает «правильно» от «естественно». Кнопка «Скрыть английский» закрывает и выражение, и оба примера — остаётся только русское значение, по которому нужно вспомнить фразу. Нажмите на скрытую ячейку, чтобы открыть одну строку; нажмите ещё раз — закроется. Открытые строки помечены синей полоской слева.</p>
   <div class="tbl-tools">
     <button class="tool" id="tEn">Скрыть английский</button>
   </div>
